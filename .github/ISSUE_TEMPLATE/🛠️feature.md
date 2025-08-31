@@ -1,14 +1,16 @@
 ---
-name: "\U0001F6E0️Feature"
-about: 기능 개발 할당용 이슈 템플릿
-title: ''
+name: "\U0001F6E0️기능 추가"
+about: 기능 강화 혹은 추가
+title: "[\U0001F6E0️Feat]"
 labels: Feature
-assignees: ''
+assignees: catuscio
 
 ---
 
-### 기능 제목
+### 기능 명명
 
-### 요구 사항
+### 왜 해야 하는가?
 
-### 참고 자료 및 코드
+### 요구 사항 및 상세 설명
+
+### 참고 자료 및 첨부 파일
