@@ -10,7 +10,18 @@ from agent.modules.models import get_gemini_llm
 
 
 # Resume 분해
-def set_resume_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
+def set_decomposition_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
+    return (
+        RunnablePassthrough.assign(
+            position = lambda x: x["resume"]
+        )
+        | prompt
+        | model
+        | StrOutputParser()
+    )
+
+
+def set_experiences_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
     return (
         RunnablePassthrough.assign(
             position = lambda x: x["resume"]

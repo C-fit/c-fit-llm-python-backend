@@ -23,30 +23,56 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# Resume 분해
 class ResumeDecompositionNode(BaseNode):
-    """
-    이력서 내용을 분해하는 노드
+    """이력서 내용을 분해하는 노드
 
     Args:
-        이력서 str
-    """
+        resume (str): 이력서 전체 string
 
+    Returns:
+        resume_details (TypedDict): 이력서 분해 결과
+    """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.prompt = prompts.get_resume_prompt(AgentState)
-        self.chain = chains.set_resume_chain(self.prompt)
+        self.chain = chains.set_decomposition_chain(self.prompt)
 
     def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
         response = prompt_chain.invoke(
             {
-                "position": state["resume"]["position"],
-                "tech_stacks": state["resume"]["tech_stacks"],
-                "years": state["resume"]["years"],
-                "awards": state["resume"]["awards"],
-                "certifications": state["resume"]["certifications"],
-                "etcetra": state["resume"]["etcetra"],
+                "resume": state["resume"]
+                # "position": state["resume"]["position"],
+                # "tech_stacks": state["resume"]["tech_stacks"],
+                # "years": state["resume"]["years"],
+                # "awards": state["resume"]["awards"],
+                # "certifications": state["resume"]["certifications"],
+                # "etcetra": state["resume"]["etcetra"],
+            }
+        )
+        result = json_repair.loads(response)
+        return {"resume_details": result}
+
+
+class ResumeExperiencesNode(BaseNode):
+    """이력서에서 경력(직장 및 프로젝트)을 추출하는 노드
+
+    Args:
+        resume (str): 이력서 전체 string
+
+    Returns:
+        resume_details (TypedDict): 이력서 분해 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_experiences_prompt(AgentState)
+        self.chain = chains.set_decomposition_chain(self.prompt)
+
+    def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        response = prompt_chain.invoke(
+            {
+                "resume": state["resume"]
             }
         )
         result = json_repair.loads(response)
