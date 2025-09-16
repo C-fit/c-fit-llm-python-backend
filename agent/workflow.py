@@ -1,7 +1,8 @@
 from langgraph.graph import StateGraph
 
-from agents.base_workflow import BaseWorkflow
-from agents.main_state import MainState
+from agent.utils.base_workflow import BaseWorkflow
+from agent.utils.main_state import MainState
+from agents.
 
 
 class MainWorkflow(BaseWorkflow):
@@ -33,6 +34,7 @@ class MainWorkflow(BaseWorkflow):
         builder = StateGraph(self.state)
         # 노드 추가 예시: builder.add_node("node_name", Node())
         builder.add_edge("__start__", "__end__")  # 시작에서 종료로 바로 연결
+        builder.add_node("decompose_resume", Resume)
         workflow = builder.compile()  # 그래프 컴파일
         workflow.name = self.name  # Workflow 이름 설정
         return workflow
