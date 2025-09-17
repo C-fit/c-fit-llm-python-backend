@@ -79,7 +79,7 @@ class ResumeExperiencesNode(BaseNode):
             }
         )
         result = json_repair.loads(response)
-        return {"resume_details": result}
+        return {"resume_details": {"experiences": result}}
     
 
 """
