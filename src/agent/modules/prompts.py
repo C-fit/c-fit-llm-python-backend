@@ -6,6 +6,10 @@
 
 from langchain.prompts import PromptTemplate
 
+
+"""
+Step 1. 이력서 관련 프롬프트
+"""
 def get_resume_prompt() -> str :
     """이력서를 토대로 직무 카테고리 등 키워드를 추출하는 프롬프트
 
@@ -25,7 +29,7 @@ def get_resume_prompt() -> str :
     # Style
     - position: 직무 유형(AI 엔지니어, ML 엔지니어, DevOps 엔지니어, ML 리서처, Backend 엔지니어 등)
     - tech_stacks: 기술 스택(사용하는 언어와 프레임워크, 라이브러리 등; Python, Go, React, Node.js, Kubernetes, Docker, Langchain 등)
-    - years: 지원자의 경력 년차(무경력일 경우 '신입', 경력직일 경우 'n년차')
+    - years: 지원자의 경력 년차(무경력일 경우 '신입', 경력직일 경우 'n년차'. 인턴은 경력으로 분류하지 않는다.)
     - awards: 수상 내역
     - certifications: 자격증
     - etcetra: 특이사항(병역특례, 보훈유공자 등)
@@ -51,6 +55,7 @@ def get_projects_prompt() -> str:
     template = """# Role
     너는 이력서의 프로젝트 내역을 추출하는 채용 도우미다.
     이력서는 <Resume>를 참고하고, <Style>의 지침대로 추출하라.
+    이 때, 사이드 프로젝트 뿐만 아니라 회사에서 진행한 프로젝트까지 모두 추출하라.
 
     # Resume
     {resume}
@@ -61,6 +66,7 @@ def get_projects_prompt() -> str:
     - period(int): 해당 프로젝트의 개발 기간. 단위는 month. 기재되지 않았을 시 'None'
     - role(str): 해당 프로젝트에서 담당한 직무명
     - team(bool): 협업 여부 (1인 개발한 프로젝트이면 False)
+    - company(Optional[str]): 프로젝트를 진행한 회사의 이름(이름만 추출할 것. 없을 경우 None)
 
     Output must be a valid JSON object only. Do NOT include ``` or any Markdown formatting.
     """
@@ -88,7 +94,7 @@ def get_experiences_prompt() -> str:
     {resume}
 
     # Style
-    - company(str): 재직한 회사명
+    - company(str): 재직한 회사의 이름(이름만 추출할 것)
     - period(int): 해당 회사의 근속 년수. 단위는 year. 기재되지 않았을 시 'None'
     - role(str): 해당 직장에서 담당한 직무명
 
@@ -101,6 +107,9 @@ def get_experiences_prompt() -> str:
     )
 
 
+"""
+Step 2. JD 관련 프롬프트
+"""
 def get_jd_prompt() -> str :
     """
     이력서를 토대로 직무 카테고리 등 키워드를 추출하는 프롬프트

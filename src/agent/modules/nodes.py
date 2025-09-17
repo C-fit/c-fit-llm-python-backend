@@ -14,18 +14,52 @@ from langchain_core.runnables import RunnableSerializable
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 
-from agent.utils.base_node import BaseNode
-import agent.modules.chains as chains
-from agent.modules.states import AgentState
-import agent.modules.prompts as prompts
+from src.agent.utils.base_node import BaseNode
+import src.agent.modules.chains as chains
+from src.agent.modules.states import AgentState
+import src.agent.modules.prompts as prompts
+
+from src.preprocess.pdf_loader import load_pdf
+from src.preprocess.url_loader import load_url
 
 from dotenv import load_dotenv
 load_dotenv()
 
+
+"""
+Step 0. 전처리
+"""
+class ResumePdfToMarkdownNode(BaseNode):
+    """이력서 pdf 파일을 markdown으로 변환하는 노드
+
+    Args:
+        resume_file (str): 이력서 파일 경로
+
+    Returns:
+        resume (str): 이력서 전문 markdown text
+    """
+    def execute(self, state: AgentState) -> dict:
+        result = load_pdf(state["resume_file"])
+        return {"resume": result}
+    
+
+class JDUrlToMarkdown(BaseNode):
+    """JD URL을 markdown으로 변환하는 노드
+
+    Args:
+        jd_url (str): 채용 공고 URL
+
+    Returns:
+        job_description (str): 채용공고 전문 markdown text
+    """
+    def execute(self, state: AgentState) -> dict:
+        result = load_url(state["jd_url"])
+        return {"job_description": result}
+    
+
 """
 Step 1. 이력서 관련 노드
 """
-
 class ResumeDecompositionNode(BaseNode):
     """이력서 내용을 분해하는 노드
 
@@ -37,7 +71,7 @@ class ResumeDecompositionNode(BaseNode):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.prompt = prompts.get_resume_prompt(AgentState)
+        self.prompt = prompts.get_resume_prompt()
         self.chain = chains.set_decomposition_chain(self.prompt)
 
     def execute(self, state: AgentState) -> dict:
@@ -45,12 +79,6 @@ class ResumeDecompositionNode(BaseNode):
         response = prompt_chain.invoke(
             {
                 "resume": state["resume"]
-                # "position": state["resume"]["position"],
-                # "tech_stacks": state["resume"]["tech_stacks"],
-                # "years": state["resume"]["years"],
-                # "awards": state["resume"]["awards"],
-                # "certifications": state["resume"]["certifications"],
-                # "etcetra": state["resume"]["etcetra"],
             }
         )
         result = json_repair.loads(response)
@@ -68,7 +96,7 @@ class ResumeExperiencesNode(BaseNode):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.prompt = prompts.get_experiences_prompt(AgentState)
+        self.prompt = prompts.get_experiences_prompt()
         self.chain = chains.set_decomposition_chain(self.prompt)
 
     def execute(self, state: AgentState) -> dict:
@@ -93,7 +121,7 @@ class ResumeProjectsNode(BaseNode):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.prompt = prompts.get_projects_prompt(AgentState)
+        self.prompt = prompts.get_projects_prompt()
         self.chain = chains.set_decomposition_chain(self.prompt)
 
     def execute(self, state: AgentState) -> dict:
@@ -105,16 +133,49 @@ class ResumeProjectsNode(BaseNode):
         )
         result = json_repair.loads(response)
 
-        # resume_details에서 is_hired 값 확인
-        current_resume_details = state.get("resume_details", {})
-        is_hired = current_resume_details.get("is_hired", False)
+        return{"resume_details": {"projects": result}}
+
+
+class ResumeCompanyProjectsNode(BaseNode):
+    """프로젝트 목록에서 회사 프로젝트만 추출하는 노드
+
+    Args:
+        projects (TypedDict): 진행한 프로젝트 목록
+
+    Returns:
+        resume_details (TypedDict): 이력서 분해 결과
+    """    
+    def execute(self, state: AgentState) -> dict:
+        projects = state["resume_details"]["projects"]
+        experiences = state["resume_details"]["experiences"]
         
-        if is_hired:
-            # 경력자인 경우: experiences 하위에 projects 저장
-            return {"resume_details": {"experiences": {"projects": result}}}
-        else:
-            # 신입인 경우: resume_details 직속에 projects 저장
-            return {"resume_details": {"projects": result}}
+        experiences_dict = {exp['company']: exp for exp in experiences}
+        remaining_projects = []
+
+        for project in projects:
+            project_company = project.get('company')
+
+            if project_company and project_company in experiences_dict:
+                # ✅ projects 필드가 없으면 초기화
+                if 'projects' not in experiences_dict[project_company]:
+                    experiences_dict[project_company]['projects'] = []
+                
+                experiences_dict[project_company]['projects'].append(project)
+                
+                if self.verbose:
+                    print(f"프로젝트 '{project.get('title', 'Unknown')}' → {project_company}")
+            else:
+                remaining_projects.append(project)
+
+        updated_experiences = list(experiences_dict.values())
+
+        return {
+            "resume_details": {
+                "projects": remaining_projects,
+                "experiences": updated_experiences
+            }
+        }
+
 
 
 """
@@ -131,8 +192,8 @@ class JDDecompositionNode(BaseNode):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.prompt = prompts.get_experiences_prompt(AgentState)
-        self.chain = chains.set_decomposition_chain(self.prompt)
+        self.prompt = prompts.get_jd_prompt()
+        self.chain = chains.set_jd_chain(self.prompt)
 
     def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain

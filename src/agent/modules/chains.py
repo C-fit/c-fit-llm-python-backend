@@ -3,25 +3,15 @@
 LCEL(LangChain Expression Language)을 사용하여 체인을 구성합니다.
 기본적으로 modules.prompt 템플릿과 modules.models 모듈을 사용하여 LangChain 체인을 생성합니다.
 """
-
+from typing import List
 from langchain.schema.runnable import RunnablePassthrough, RunnableSerializable
 from langchain_core.output_parsers import StrOutputParser
-from agent.modules.models import get_gemini_llm
+from src.agent.modules.models import get_gemini_llm
+from src.agent.modules.states import ProjectAndAchievementsDict, ExperiencesDict
 
 
 # Resume 분해
 def set_decomposition_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
-    return (
-        RunnablePassthrough.assign(
-            position = lambda x: x["resume"]
-        )
-        | prompt
-        | model
-        | StrOutputParser()
-    )
-
-
-def set_experiences_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
     return (
         RunnablePassthrough.assign(
             position = lambda x: x["resume"]

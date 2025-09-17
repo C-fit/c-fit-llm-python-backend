@@ -10,7 +10,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from langgraph.graph.message import add_messages
 from typing import Annotated, TypedDict, Dict, List, Any, Optional
-from agent.utils.functions import merge_dict
+
+
+def merge_dict(existing: dict, new: dict) -> dict:
+    """states.py의 기존값 유지를 위한 리듀서"""
+    if existing is None:
+        return new
+    return {**existing, **new}
+
 
 """
 각 노드에서 사용하는 딕셔너리 자료형
@@ -19,9 +26,10 @@ class ProjectAndAchievementsDict(TypedDict):
     """프로젝트 별 성과"""
     title: str                  # 프로젝트명
     achievements: List[str]     # 성과
-    period: int                  # 개발 기간
+    period: int                 # 개발 기간
     role: str                   # 담당 업무
-    team: bool                # 협업 여부
+    team: bool                  # 협업 여부
+    company: str                # 진행한 회사
 
 class ExperiencesDict(TypedDict):
     company: str            # 재직 회사
@@ -36,13 +44,12 @@ Resume && JD schema
 class ResumeDict(TypedDict):
     position: str                   # 직무 유형
     tech_stacks: str                # 기술 스택
-    is_hired: bool                  # 경력 여부
     years: int                      # 경력 년차
     awards: str                     # 수상 내역
     certifications: str             # 자격증
     etcetra: str                    # 특이사항
     experiences: ExperiencesDict    # 경력
-    projects: ProjectAndAchievementsDict   # 프로젝트
+    projects: List[ProjectAndAchievementsDict]   # 프로젝트
 
 
 class JobDescriptionDict(TypedDict):
@@ -62,7 +69,11 @@ class JobDescriptionDict(TypedDict):
 Agent State
 """
 class AgentState(TypedDict):
-    # 이력서 & JD 원본
+    # 이력서 파일 & JD URL
+    resume_file: str
+    jd_url: str
+
+    # 이력서 & JD 원본 text
     resume: str
     job_description: str
 
