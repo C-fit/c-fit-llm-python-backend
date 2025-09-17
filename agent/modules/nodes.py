@@ -22,6 +22,9 @@ import agent.modules.prompts as prompts
 from dotenv import load_dotenv
 load_dotenv()
 
+"""
+Step 1. 이력서 관련 노드
+"""
 
 class ResumeDecompositionNode(BaseNode):
     """이력서 내용을 분해하는 노드
@@ -77,3 +80,31 @@ class ResumeExperiencesNode(BaseNode):
         )
         result = json_repair.loads(response)
         return {"resume_details": result}
+    
+
+"""
+JD 관련 노드
+"""
+class JDDecompositionNode(BaseNode):
+    """채용공고(JD)에서 정보를 추출하는 노드
+
+    Args:
+        job_description (str): 채용공고 전체 string
+
+    Returns:
+        jd_details (TypedDict): 채용공고 분해 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_experiences_prompt(AgentState)
+        self.chain = chains.set_decomposition_chain(self.prompt)
+
+    def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        response = prompt_chain.invoke(
+            {
+                "job_description": state["job_description"]
+            }
+        )
+        result = json_repair.loads(response)
+        return {"jd_details": result}
