@@ -21,6 +21,7 @@ class ProjectAndAchievementsDict(TypedDict):
     """프로젝트 별 성과"""
     title: str                  # 프로젝트명
     achievements: List[str]     # 성과
+    years: int                  # 개발 기간
     role: str                   # 담당 업무
     team: bool                # 협업 여부
 
@@ -30,14 +31,6 @@ class ExperiencesDict(TypedDict):
     role: str               # 담당 직무
     projects: List[ProjectAndAchievementsDict]    #진행한 업무
 
-
-class ProjectsDict(TypedDict):
-    title: str               # 프로젝트 명
-    people: bool             # 개인/협업 여부
-    role: str                # 담당 업무
-    achievements: str        # 성과
-
-
 class ResumeDict(TypedDict):
     position: str                   # 직무 유형
     tech_stacks: str                # 기술 스택
@@ -46,7 +39,7 @@ class ResumeDict(TypedDict):
     certifications: str             # 자격증
     etcetra: str                    # 특이사항
     experiences: ExperiencesDict    # 경력
-    projects: ProjectsDict          # 프로젝트
+    projects: ProjectAndAchievementsDict   # 프로젝트
 
 
 class JobDescriptionDict(TypedDict):
