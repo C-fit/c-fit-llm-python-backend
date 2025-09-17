@@ -80,6 +80,31 @@ class ResumeExperiencesNode(BaseNode):
         )
         result = json_repair.loads(response)
         return {"resume_details": {"experiences": result}}
+
+
+class ResumeProjectsNode(BaseNode):
+    """이력서에서 프로젝트를 추출하는 노드
+
+    Args:
+        resume (str): 이력서 전체 string
+
+    Returns:
+        resume_details (TypedDict): 이력서 분해 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_projects_prompt(AgentState)
+        self.chain = chains.set_decomposition_chain(self.prompt)
+
+    def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        response = prompt_chain.invoke(
+            {
+                "resume": state["resume"]
+            }
+        )
+        result = json_repair.loads(response)
+        return {"resume_details": {"projects": result}}
     
 
 """

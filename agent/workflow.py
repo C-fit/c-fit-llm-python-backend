@@ -33,11 +33,13 @@ class MainWorkflow(BaseWorkflow):
         """
         builder = StateGraph(self.state)
         # 노드 추가 예시: builder.add_node("node_name", Node())
-        builder.add_node("decompose_resume", nd.ResumeDecompositionNode)
-        builder.add_node("decompose_experiences", nd.ResumeExperiencesNode)
+        builder.add_node("decompose_resume", nd.ResumeDecompositionNode())
+        builder.add_node("decompose_experiences", nd.ResumeExperiencesNode())
+        builder.add_node("decompose_projects", nd.ResumeProjectsNode())
 
         builder.add_edge("__start__", "decompose_resume")  # 시작에서 종료로 바로 연결
         builder.add_edge("decompose_resume", "decompose_experience")
+        builder.add_edge("decompose_experience", "decomp")
         builder.add_edge("decompose_experiences", "__end__")
 
         workflow = builder.compile()  # 그래프 컴파일
