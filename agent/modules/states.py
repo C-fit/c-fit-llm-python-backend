@@ -21,16 +21,20 @@ class ProjectAndAchievementsDict(TypedDict):
     """프로젝트 별 성과"""
     title: str                  # 프로젝트명
     achievements: List[str]     # 성과
-    years: int                  # 개발 기간
+    period: int                  # 개발 기간
     role: str                   # 담당 업무
     team: bool                # 협업 여부
 
 class ExperiencesDict(TypedDict):
     company: str            # 재직 회사
-    years: int              # 근속 년수
+    period: int              # 근속 년수
     role: str               # 담당 직무
     projects: List[ProjectAndAchievementsDict]    #진행한 업무
 
+
+"""
+Resume && JD schema
+"""
 class ResumeDict(TypedDict):
     position: str                   # 직무 유형
     tech_stacks: str                # 기술 스택

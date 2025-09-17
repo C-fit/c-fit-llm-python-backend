@@ -39,8 +39,40 @@ def get_resume_prompt() -> str :
     )
 
 
+def get_projects_prompt() -> str:
+    """이력서에 기재된 프로젝트 내역을 추출하는 프롬프트
+    
+    Args:
+        resume (str): 이력서 전체 string
+    
+    Returns:
+        이력서 프로젝트 프롬프트 (PromptTemplate)
+    """
+    template = """# Role
+    너는 이력서의 프로젝트 내역을 추출하는 채용 도우미다.
+    이력서는 <Resume>를 참고하고, <Style>의 지침대로 추출하라.
+
+    # Resume
+    {resume}
+
+    # Style
+    - title(str): 진행한 프로젝트 이름
+    - achievements(List[str]): 해당 프로젝트에서 달성한 성과들
+    - period(int): 해당 프로젝트의 개발 기간. 단위는 month. 기재되지 않았을 시 'None'
+    - role(str): 해당 프로젝트에서 담당한 직무명
+    - team(bool): 협업 여부 (1인 개발한 프로젝트이면 False)
+
+    Output must be a valid JSON object only. Do NOT include ``` or any Markdown formatting.
+    """
+
+    return PromptTemplate(
+        template=template,
+        input_variables=["resume"]
+    )
+
+
 def get_experiences_prompt() -> str:
-    """이력서를 토대로 직무 카테고리 등 키워드를 추출하는 프롬프트
+    """이력서를 토대로 경력사항을 추출하는 프롬프트
     
     Args:
         resume (str): 이력서 전체 string
@@ -50,47 +82,15 @@ def get_experiences_prompt() -> str:
     """
     template = """# Role
     너는 이력서의 경력 사항을 추출하는 채용 도우미다.
-    이력서는 <Resume>를 참고하고, 추출한 경력은 <Style>을 참고하여 <Few-shot Example>의 양식에 맞게 작성하라.
+    이력서는 <Resume>를 참고하고, <Style>의 지침대로 추출하라.
 
     # Resume
     {resume}
 
     # Style
-    - company: 재직한 회사명
-    - years: 해당 회사의 근속 년수. 기재되지 않았을 시 'None'
-    - role: 해당 직장에서 담당한 직무명
-    - project: 해당 직장에서 진행한 프로젝트
-    - achievements: 해당 프로젝트에서 달성한 성과들
-
-    # Few-shot Example
-    {
-        "company": "테크 컴퍼니",
-        "years": 3,
-        "role": "백엔드 개발자",
-        "projects": [
-            {
-                "project": "사용자 인증 시스템 개발",
-                "achievements": [
-                    "로그인 성공률 15% 향상",
-                    "보안 취약점 3건 해결",
-                    "사용자 만족도 90% 달성"
-                ]
-            },
-            {
-                "project": "API 성능 최적화",
-                "achievements": [
-                    "응답 시간 50% 단축",
-                    "서버 리소스 사용량 30% 절약"
-                ]
-            },
-            {
-                "project": "데이터베이스 마이그레이션",
-                "achievements": [
-                    "다운타임 없이 성공적으로 완료"
-                ]
-            }
-        ]
-    }
+    - company(str): 재직한 회사명
+    - period(int): 해당 회사의 근속 년수. 단위는 year. 기재되지 않았을 시 'None'
+    - role(str): 해당 직장에서 담당한 직무명
 
     Output must be a valid JSON object only. Do NOT include ``` or any Markdown formatting.
     """
