@@ -8,11 +8,9 @@ LangGraph의 상태 관리를 위한 클래스를 포함합니다.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Annotated, TypedDict, Dict, Union
-
 from langgraph.graph.message import add_messages
-
-from typing import TypedDict, Dict, List, Any, Optional
+from typing import Annotated, TypedDict, Dict, List, Any, Optional
+from agent.utils.functions import merge_dict
 
 """
 각 노드에서 사용하는 딕셔너리 자료형
@@ -38,6 +36,7 @@ Resume && JD schema
 class ResumeDict(TypedDict):
     position: str                   # 직무 유형
     tech_stacks: str                # 기술 스택
+    is_hired: bool                  # 경력 여부
     years: int                      # 경력 년차
     awards: str                     # 수상 내역
     certifications: str             # 자격증
@@ -68,5 +67,5 @@ class AgentState(TypedDict):
     job_description: str
 
     # 분해된 이력서 & JD
-    resume_details: ResumeDict
+    resume_details: Annotated[ResumeDict, merge_dict]
     jd_details: JobDescriptionDict

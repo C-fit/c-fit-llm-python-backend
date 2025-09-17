@@ -104,8 +104,18 @@ class ResumeProjectsNode(BaseNode):
             }
         )
         result = json_repair.loads(response)
-        return {"resume_details": {"projects": result}}
-    
+
+        # resume_details에서 is_hired 값 확인
+        current_resume_details = state.get("resume_details", {})
+        is_hired = current_resume_details.get("is_hired", False)
+        
+        if is_hired:
+            # 경력자인 경우: experiences 하위에 projects 저장
+            return {"resume_details": {"experiences": {"projects": result}}}
+        else:
+            # 신입인 경우: resume_details 직속에 projects 저장
+            return {"resume_details": {"projects": result}}
+
 
 """
 JD 관련 노드
