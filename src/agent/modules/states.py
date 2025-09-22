@@ -80,3 +80,6 @@ class AgentState(TypedDict):
     # 분해된 이력서 & JD
     resume_details: Annotated[ResumeDict, merge_dict]
     jd_details: JobDescriptionDict
+
+    # 지원자 평가 관련 항목
+    applicant_skills: str
