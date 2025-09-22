@@ -48,7 +48,7 @@ class ResumeDict(TypedDict):
     awards: str                     # 수상 내역
     certifications: str             # 자격증
     etcetra: str                    # 특이사항
-    experiences: ExperiencesDict    # 경력
+    experiences: List[ExperiencesDict]    # 경력
     projects: List[ProjectAndAchievementsDict]   # 프로젝트
 
 
