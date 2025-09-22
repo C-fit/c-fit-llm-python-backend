@@ -204,3 +204,32 @@ class JDDecompositionNode(BaseNode):
         )
         result = json_repair.loads(response)
         return {"jd_details": result}
+    
+
+"""
+평가 관련 노드
+"""
+class EvaluateSkillsNode(BaseNode):
+    """이력서를 토대로 지원자의 역량을 평가하는 노드
+
+    Args:
+        resume_details (TypedDict): 이력서 분해 결과
+
+    Returns:
+        applicant_skills (str): 이력서 평가 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_skills_analysis_prompt()
+        self.chain = chains.set_resume_evaluation_chain(self.prompt)
+
+    def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        response = prompt_chain.invoke(
+            {
+                "resume_details": state["resume_details"]
+            }
+        )
+        # result = json_repair.loads(response)
+
+        return{"applicant_skills": response}

@@ -147,7 +147,7 @@ def get_jd_prompt() -> str :
     )
 
 
-def get_analysis_prompt() -> str :
+def get_skills_analysis_prompt() -> str :
     """
     이력서와 JD를 비교 분석하는 프롬프트
 
