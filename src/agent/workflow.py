@@ -69,6 +69,7 @@ initial_state = {
     "resume_file": "/home/catusciows/workspace/c-fit/pdf/이력서.pdf",
     "jd_url": "https://www.wanted.co.kr/wd/290088"
 }
+
 main_workflow = MainWorkflow(AgentState)
 work = main_workflow.build()
 result = work.invoke(initial_state)
