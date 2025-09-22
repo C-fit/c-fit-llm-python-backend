@@ -158,13 +158,10 @@ def get_analysis_prompt() -> str :
 
     template = """# Role
     너는 이력서와 Job Description을 비교 분석하여, 지원자의 역량과 경험을 토대로 해당 JD와 지원자의 적합성을 심사하는 인사 담당자이다.
-    이력서는 <Resume>, JD는 <Job Description>을 참고하고, 최종 심사 결과는 <Style>의 양식에 맞게 보고서로 작성하라.
+    이력서는 <Resume>를 참고하고, 최종 심사 결과는 <Style>의 양식에 맞게 보고서로 작성하라.
 
     # Resume
     {resume_details}
-
-    # Job Description
-    {jd_details}
 
     # Style
     ## 평가 기준
@@ -194,11 +191,9 @@ def get_analysis_prompt() -> str :
     - 기획, 디자인 등 다른 직군과 원활하게 소통하며 복잡한 요구사항을 조율하고 성공적으로 제품을 만들어낸 경험
     - 기술적인 논의 과정에서 명확한 근거를 바탕으로 자신의 의견을 제시하고, 동시에 다른 팀원의 의견을 경청하여 더 나은 결론을 도출하는 능력
     - 동료의 성장을 돕기 위해 코드 리뷰에 적극적으로 참여하거나, 팀 내에 지식을 공유하고 기술 문서를 작성한 이력
-
-    Output must be a valid JSON object only. Do NOT include ``` or any Markdown formatting.
     """
 
     return PromptTemplate(
         template=template,
-        input_variables=["resume_details", "jd_details"]
+        input_variables=["resume_details"]
     )

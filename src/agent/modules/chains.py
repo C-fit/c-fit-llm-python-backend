@@ -32,3 +32,15 @@ def set_jd_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializab
         | model
         | StrOutputParser()
     )
+
+
+# 이력서 평가
+def set_resume_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
+    return (
+        RunnablePassthrough.assign(
+            position = lambda x: x["resume_details"]
+        )
+        | prompt
+        | model
+        | StrOutputParser
+    )
