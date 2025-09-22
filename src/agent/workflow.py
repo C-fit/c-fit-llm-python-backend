@@ -48,7 +48,7 @@ class MainWorkflow(BaseWorkflow):
         builder.add_node("decompose_jd", nd.JDDecompositionNode())
 
         # 평가 노드
-        builder.add_node("evaluate_skills". nd.EvaluateSkillsNode())
+        builder.add_node("evaluate_skills", nd.EvaluateSkillsNode())
 
         # 그래프 연결
         builder.add_edge("__start__", "extract_resume")
