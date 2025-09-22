@@ -42,5 +42,5 @@ def set_resume_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> Run
         )
         | prompt
         | model
-        | StrOutputParser
+        | StrOutputParser()
     )
