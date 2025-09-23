@@ -86,3 +86,4 @@ class AgentState(TypedDict):
 
     # 지원자 평가 관련 항목
     applicant_skills: str
+    applicant_recruitment: str
