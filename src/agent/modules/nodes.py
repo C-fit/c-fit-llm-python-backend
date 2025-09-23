@@ -233,3 +233,38 @@ class EvaluateSkillsNode(BaseNode):
         # result = json_repair.loads(response)
 
         return{"applicant_skills": response}
+    
+
+class EvaluateRecruitlNode(BaseNode):
+    """이력서와 JD를 토대로 지원자의 역량을 평가하는 노드
+
+    Args:
+        resume_details (TypedDict): 이력서 분해 결과
+
+    Returns:
+        applicant_skills (str): 이력서 평가 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_recruit_analysis_prompt()
+        self.chain = chains.set_recruit_evaluation_chain(self.prompt)
+
+    def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        response = prompt_chain.invoke(
+            {
+                "company": state["jd_details"]["company"],
+                "company_inforamtion": state["jd_details"]["company_inforamtion"],
+                "title": state["jd_details"]["title"],
+                "introduction": state["jd_details"]["introduction"],
+                "responsibilities": state["jd_details"]["responsibilities"],
+                "qualifications": state["jd_details"]["qualifications"],
+                "preference": state["jd_details"]["preference"],
+                "skills": state["jd_details"]["skills"],
+                "tech_stacks": state["jd_details"]["tech_stacks"],
+                "resume_details": state["resume_details"]
+            }
+        )
+        # result = json_repair.loads(response)
+
+        return{"applicant_recruitment": response}
