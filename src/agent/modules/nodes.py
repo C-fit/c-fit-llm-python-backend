@@ -254,11 +254,11 @@ class EvaluateRecruitlNode(BaseNode):
         response = prompt_chain.invoke(
             {
                 "company": state["jd_details"]["company"],
-                "company_inforamtion": state["jd_details"]["company_inforamtion"],
+                "company_information": state["jd_details"]["company_information"],
                 "title": state["jd_details"]["title"],
                 "introduction": state["jd_details"]["introduction"],
                 "responsibilities": state["jd_details"]["responsibilities"],
-                "qualifications": state["jd_details"]["qualifications"],
+                "qualification": state["jd_details"]["qualification"],
                 "preference": state["jd_details"]["preference"],
                 "skills": state["jd_details"]["skills"],
                 "tech_stacks": state["jd_details"]["tech_stacks"],

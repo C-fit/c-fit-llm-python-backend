@@ -49,6 +49,7 @@ class MainWorkflow(BaseWorkflow):
 
         # 평가 노드
         builder.add_node("evaluate_skills", nd.EvaluateSkillsNode())
+        builder.add_node("evaluate_recruitment", nd.EvaluateRecruitlNode())
 
         # 그래프 연결
         builder.add_edge("__start__", "extract_resume")
@@ -58,12 +59,16 @@ class MainWorkflow(BaseWorkflow):
         builder.add_edge("decompose_resume", "decompose_experiences")
         builder.add_edge("decompose_experiences", "decompose_projects")
         builder.add_edge("decompose_projects", "extract_company_projects")
-        builder.add_edge("extract_company_projects", "__end__")
         # builder.add_edge("extract_company_projects", "evaluate_skills")
-        # builder.add_edge("evaluate_skills", "__end__")
+        builder.add_edge("extract_company_projects", "evaluate_recruitment")
 
         builder.add_edge("extract_jd", "decompose_jd")
-        builder.add_edge("decompose_jd", "__end__")
+        # builder.add_edge("decompose_jd", "evaluate_skills")
+        builder.add_edge("decompose_jd", "evaluate_recruitment")
+
+        # builder.add_edge("extract_company_projects", "__end__")
+        # builder.add_edge("evaluate_skills", "__end__")
+        builder.add_edge("evaluate_recruitment", "__end__")
 
         workflow = builder.compile()  # 그래프 컴파일
         workflow.name = self.name  # Workflow 이름 설정

@@ -51,11 +51,11 @@ def set_recruit_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> Ru
     return (
         RunnablePassthrough.assign(
             company = lambda x: x["company"],
-            company_inforamtion = lambda x: x["company_inforamtion"],
+            company_inforamtion = lambda x: x["company_information"],
             title = lambda x: x["title"],
             introduction = lambda x: x["introduction"],
             responsibilities = lambda x: x["responsibilities"],
-            qualifications = lambda x: x["qualifications"],
+            qualifications = lambda x: x["qualification"],
             preference = lambda x: x["preference"],
             skills = lambda x: x["skills"],
             tech_stacks = lambda x: x["tech_stacks"],
