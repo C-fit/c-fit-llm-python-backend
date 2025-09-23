@@ -210,6 +210,7 @@ def get_skills_analysis_prompt() -> str :
     - (1)은 다섯 가지 역량 기준들의 전체 점수 표, Heading 2로 작성
     - (2)는 기준 별 세부 평가 기준 점수 표와 근거로 구성, Heading 2로 작성하되, 각 기준은 Heading 3로 작성
     - (3)은 전반적인 지원자의 '강점 및 부각해야 할 점', '아쉽거나 부족한 점', '더 쌓아야 하는 경험', '이력서의 스토리텔링 제안,'으로 구성
+    - '아쉽거나 부족한 점'에서는 이력서가 단순 나열이 아닌 AS-IS, TO-BE, Trouble Shooting이 잘 드러났는지도 검토
 
     ### 표의 형식
     다음과 같은 Column Header를 지니는 Markdown Format의 표로 출력하라.
