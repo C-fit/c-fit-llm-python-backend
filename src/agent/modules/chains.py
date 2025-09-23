@@ -47,7 +47,7 @@ def set_resume_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> Run
 
 
 # Resume/JD 비교 심사
-def set_general_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
+def set_recruit_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
     return (
         RunnablePassthrough.assign(
             company = lambda x: x["company"],
