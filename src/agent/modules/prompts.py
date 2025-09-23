@@ -94,7 +94,7 @@ def get_experiences_prompt() -> str:
     {resume}
 
     # Style
-    - company(str): 재직한 회사의 이름(이름만 추출할 것)
+    - company(str): 재직한 회사의 이름(회사 설명이 아닌 이름만 추출할 것. Markdown format을 고려하여 추정되는 고유명사를 추출할 것.)
     - period(int): 해당 회사의 근속 년수. 단위는 year. 기재되지 않았을 시 'None'
     - role(str): 해당 직장에서 담당한 직무명
 
@@ -128,6 +128,7 @@ def get_jd_prompt() -> str :
     # Style
     - title: 직무명(예: 백엔드 엔지니어, 데이터 사이언티스트 등)
     - company: 회사명
+    - company_information: 회사 소개 요약 (1- 2줄)
     - introduction: 직무 요약
     - responsibilities: 주요 업무
     - qualification: 자격요건

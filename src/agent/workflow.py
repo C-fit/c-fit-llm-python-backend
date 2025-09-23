@@ -58,9 +58,9 @@ class MainWorkflow(BaseWorkflow):
         builder.add_edge("decompose_resume", "decompose_experiences")
         builder.add_edge("decompose_experiences", "decompose_projects")
         builder.add_edge("decompose_projects", "extract_company_projects")
-        # builder.add_edge("extract_company_projects", "__end__")
-        builder.add_edge("extract_company_projects", "evaluate_skills")
-        builder.add_edge("evaluate_skills", "__end__")
+        builder.add_edge("extract_company_projects", "__end__")
+        # builder.add_edge("extract_company_projects", "evaluate_skills")
+        # builder.add_edge("evaluate_skills", "__end__")
 
         builder.add_edge("extract_jd", "decompose_jd")
         builder.add_edge("decompose_jd", "__end__")
