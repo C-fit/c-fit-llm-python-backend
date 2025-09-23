@@ -54,6 +54,7 @@ class ResumeDict(TypedDict):
 
 class JobDescriptionDict(TypedDict):
     title: str                  # 직무명
+    company: str                # 회사명
     introduction: str           # 직무 요약
     responsibilities: str       # 주요 업무
     qualification: str          # 자격요건
