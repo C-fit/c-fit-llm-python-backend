@@ -1,8 +1,10 @@
 import os
 import shutil
 import tempfile
+from pydantic import BaseModel, Field
+from typing import Optional, Dict, Any
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
-from typing import Optional
 from contextlib import asynccontextmanager
 
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -26,6 +28,26 @@ async def lifespan(app: FastAPI):
         print("Checkpointer Ready.")
         yield
     print("Checkpointer Closed.")
+
+
+"""
+ResponseModel 설정
+"""
+class PreprocessResumeResponse(BaseModel):
+    # 이력서 전처리 후에는 이력서의 주요 정보만 요약해서 보내줌
+    resume_details: Dict[str, Any] = Field(description="이력서에서 추출된 주요 정보")
+
+class PreprocessJdResponse(BaseModel):
+    # JD 전처리 후에는 JD의 주요 정보만 요약해서 보내줌
+    jd_details: Dict[str, Any] = Field(description="JD에서 추출된 주요 정보")
+
+class AnalyzeResumeResponse(BaseModel):
+    # 이력서 분석 결과만 반환
+    applicant_skills: str = Field(description="이력서 역량 분석 결과")
+
+class AnalyzeRecruitResponse(BaseModel):
+    # 이력서-JD 비교 분석 결과만 반환
+    applicant_recruitment: str = Field(description="채용 공고 기반 종합 분석 결과")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -58,7 +80,7 @@ async def preprocess_resume_endpoint(
         await work.ainvoke(initial_state, config=config)
         
         final_state = await work.aget_state(config)
-        return final_state.values
+        return {"resume_details": final_state.values.get("resume_details", {})}
 
     finally:
         if temp_file_path and os.path.exists(temp_file_path):
@@ -81,7 +103,7 @@ async def preprocess_jd_endpoint(
     await work.ainvoke(initial_state, config=config)
     
     final_state = await work.aget_state(config)
-    return final_state.values
+    return {"jd_details": final_state.values.get("jd_details", {})}
 
 
 @app.post("/analyze-resume")
@@ -100,7 +122,7 @@ async def analyze_resume_endpoint(
     await work.ainvoke(initial_state, config=config)
     
     final_state = await work.aget_state(config)
-    return final_state.values
+    return {"applicant_skills": final_state.values.get("applicant_skills", "분석 결과 없음")}
 
 
 @app.post("/analyze-recruit")
@@ -119,4 +141,4 @@ async def analyze_recruit_endpoint(
     await work.ainvoke(initial_state, config=config)
     
     final_state = await work.aget_state(config)
-    return final_state.values
+    return {"applicant_recruitment": final_state.values.get("applicant_recruitment", "분석 결과 없음")}
