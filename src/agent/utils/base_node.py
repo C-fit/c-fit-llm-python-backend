@@ -34,7 +34,7 @@ class BaseNode(ABC):
         self.verbose = kwargs.get("verbose", False)  # 상세 로깅 활성화 여부
 
     @abstractmethod
-    def execute(self, state) -> dict:
+    async def execute(self, state) -> dict:
         """
         노드의 주요 실행 로직을 구현하는 추상 메서드
 
@@ -62,7 +62,7 @@ class BaseNode(ABC):
             for key, value in kwargs.items():
                 print(f"{key}: {value}")  # 추가 정보 출력
 
-    def __call__(self, state):
+    async def __call__(self, state):
         """
         노드를 함수처럼 호출 가능하게 만드는 메서드
 
@@ -74,4 +74,4 @@ class BaseNode(ABC):
         Returns:
             dict: execute 메서드의 결과
         """
-        return self.execute(state)
+        return await self.execute(state)
