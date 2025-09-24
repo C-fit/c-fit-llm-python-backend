@@ -146,24 +146,41 @@ class ResumeCompanyProjectsNode(BaseNode):
         resume_details (TypedDict): 이력서 분해 결과
     """    
     async def execute(self, state: AgentState) -> dict:
-        projects = state["resume_details"]["projects"]
-        experiences = state["resume_details"]["experiences"]
+        # .get()을 사용하여 키가 없는 경우에도 에러가 나지 않도록 함
+        projects = state.get("resume_details", {}).get("projects", [])
+        experiences = state.get("resume_details", {}).get("experiences", [])
+
+        # 1. experiences가 리스트가 아닐 경우를 대비한 방어 코드
+        if not isinstance(experiences, list):
+            # 비정상적인 입력이므로, 빈 리스트로 처리하고 넘어감
+            experiences = []
         
-        experiences_dict = {exp['company']: exp for exp in experiences}
+        experiences_dict = {}
         remaining_projects = []
 
+        # 2. 리스트의 각 요소가 딕셔너리인지 확인하는 방어 코드
+        for exp in experiences:
+            # exp가 딕셔너리이고 'company' 키를 가지고 있을 때만 처리
+            if isinstance(exp, dict) and 'company' in exp:
+                experiences_dict[exp['company']] = exp
+            else:
+                # 딕셔너리가 아닌 요소(예: 문자열)는 무시하고 넘어감
+                if self.verbose:
+                    print(f"Skipping invalid experience item: {exp}")
+
+        # projects 리스트 순회 시에도 동일한 방어 코드 적용
         for project in projects:
+            if not isinstance(project, dict):
+                if self.verbose:
+                    print(f"Skipping invalid project item: {project}")
+                continue # 딕셔너리가 아니면 건너뜀
+
             project_company = project.get('company')
 
             if project_company and project_company in experiences_dict:
-                # ✅ projects 필드가 없으면 초기화
                 if 'projects' not in experiences_dict[project_company]:
                     experiences_dict[project_company]['projects'] = []
-                
                 experiences_dict[project_company]['projects'].append(project)
-                
-                if self.verbose:
-                    print(f"프로젝트 '{project.get('title', 'Unknown')}' → {project_company}")
             else:
                 remaining_projects.append(project)
 
