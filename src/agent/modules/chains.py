@@ -1,7 +1,5 @@
-"""LangChain 체인을 설정하는 함수 모듈
-
-LCEL(LangChain Expression Language)을 사용하여 체인을 구성합니다.
-기본적으로 modules.prompt 템플릿과 modules.models 모듈을 사용하여 LangChain 체인을 생성합니다.
+"""Langchain 모듈
+각 Agent 노드에서 사용하는 프롬프트와 모델을 Langchain 문법으로 정의, 결합합니다.
 """
 from typing import List
 from langchain.schema.runnable import RunnablePassthrough, RunnableSerializable

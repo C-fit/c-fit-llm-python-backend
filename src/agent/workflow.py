@@ -1,3 +1,6 @@
+"""LLM Agent Workflow 모듈
+Task 별 Multi-Agent Workflow를 정의합니다.
+"""
 from langgraph.graph import StateGraph
 
 from src.agent.utils.base_workflow import BaseWorkflow

@@ -1,8 +1,5 @@
-"""
-이미지 Workflow의 상태를 정의하는 모듈
-
-이 모듈은 이미지 기반 콘텐츠 생성을 위한 Workflow에서 사용되는 상태 정보를 정의합니다.
-LangGraph의 상태 관리를 위한 클래스를 포함합니다.
+"""Agent State 모듈
+Agent가 사용하는 각 데이터들의 스키마를 정의합니다.
 """
 
 from __future__ import annotations
