@@ -9,7 +9,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 load_dotenv()
 
 
-def get_gemini_llm(temperature=0.5):
+def get_gemini_llm(temperature=0.2):
     """
     LangChain에서 사용할 Gemini 모델을 초기화하여 번환합니다.
     환경변수에서 GOOGLE_API_KEY를 가져와 사용하기 때문에, .env 파일에 유효한 API 키가 설정되어 있어야 합니다.
