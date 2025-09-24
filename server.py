@@ -5,9 +5,12 @@ from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+# NOTE: Local 개발 용 sqlite 사용
+# from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 import src.agent.workflow as wk
 from src.agent.modules.states import AgentState
@@ -15,19 +18,36 @@ from src.agent.modules.states import AgentState
 """
 lifespan 설정
 """
+# NOTE: 로컬 개발 용 sqlite lifespan
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     """
+#     FastAPI lifespan Checkpointer.
+#     AgentState가 매 요청마다 초기화되지 않도록 해주는 역할
+#     - 서버 시작 시: DB와 연결된 Checkpointer를 생성하여 app.state에 저장
+#     - 1회의 DB 연결만으로 모든 요청 처리 가능
+#     """
+#     async with AsyncSqliteSaver.from_conn_string("checkpoint.sqlite") as checkpointer:
+#         app.state.checkpointer = checkpointer
+#         print("Checkpointer Ready.")
+#         yield
+#     print("Checkpointer Closed.")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    FastAPI lifespan Checkpointer.
-    AgentState가 매 요청마다 초기화되지 않도록 해주는 역할
-    - 서버 시작 시: DB와 연결된 Checkpointer를 생성하여 app.state에 저장
-    - 1회의 DB 연결만으로 모든 요청 처리 가능
-    """
-    async with AsyncSqliteSaver.from_conn_string("checkpoint.sqlite") as checkpointer:
+    # 랩터(Raptor)나 다른 배포 환경에 설정된 환경 변수에서 DB URL을 가져옴
+    DB_URL = os.environ.get("LANGGRAPH_DB_URL")
+    
+    if not DB_URL:
+        raise RuntimeError("LANGGRAPH_DB_URL 환경 변수가 설정되지 않았습니다.")
+        
+    async with AsyncPostgresSaver.from_conn_string(DB_URL) as checkpointer:
+        await checkpointer.setup()
+        
         app.state.checkpointer = checkpointer
-        print("Checkpointer Ready.")
+        print("PostgreSQL Checkpointer Ready.")
         yield
-    print("Checkpointer Closed.")
+    print("PostgreSQL Checkpointer Closed.")
 
 
 """
@@ -51,6 +71,18 @@ class AnalyzeRecruitResponse(BaseModel):
 
 
 app = FastAPI(lifespan=lifespan)
+
+origins = [
+    "http://localhost:3000",  # 로컬 FE 개발 서버
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,        # 허용할 출처 목록
+    allow_credentials=True,       # 쿠키를 포함한 요청 허용 여부
+    allow_methods=["*"],          # 허용할 HTTP 메서드 (GET, POST 등)
+    allow_headers=["*"],          # 허용할 HTTP 헤더
+)
 
 
 """
