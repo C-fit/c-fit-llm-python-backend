@@ -4,6 +4,10 @@
 
 # local files
 pdf/
+
+# SQLite DB Test files
+checkpoint.sqlite*
+
 # Python-generated files
 __pycache__/
 *.py[oc]
