@@ -38,7 +38,7 @@ class ResumePdfToMarkdownNode(BaseNode):
     Returns:
         resume (str): 이력서 전문 markdown text
     """
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         result = load_pdf(state["resume_file"])
         return {"resume": result}
     
@@ -52,7 +52,7 @@ class JDUrlToMarkdown(BaseNode):
     Returns:
         job_description (str): 채용공고 전문 markdown text
     """
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         result = load_url(state["jd_url"])
         return {"job_description": result}
     
@@ -74,9 +74,9 @@ class ResumeDecompositionNode(BaseNode):
         self.prompt = prompts.get_resume_prompt()
         self.chain = chains.set_decomposition_chain(self.prompt)
 
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        response = prompt_chain.invoke(
+        response = await prompt_chain.ainvoke(
             {
                 "resume": state["resume"]
             }
@@ -99,9 +99,9 @@ class ResumeExperiencesNode(BaseNode):
         self.prompt = prompts.get_experiences_prompt()
         self.chain = chains.set_decomposition_chain(self.prompt)
 
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        response = prompt_chain.invoke(
+        response = await prompt_chain.ainvoke(
             {
                 "resume": state["resume"]
             }
@@ -124,9 +124,9 @@ class ResumeProjectsNode(BaseNode):
         self.prompt = prompts.get_projects_prompt()
         self.chain = chains.set_decomposition_chain(self.prompt)
 
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        response = prompt_chain.invoke(
+        response = await prompt_chain.ainvoke(
             {
                 "resume": state["resume"]
             }
@@ -145,7 +145,7 @@ class ResumeCompanyProjectsNode(BaseNode):
     Returns:
         resume_details (TypedDict): 이력서 분해 결과
     """    
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         projects = state["resume_details"]["projects"]
         experiences = state["resume_details"]["experiences"]
         
@@ -195,9 +195,9 @@ class JDDecompositionNode(BaseNode):
         self.prompt = prompts.get_jd_prompt()
         self.chain = chains.set_jd_chain(self.prompt)
 
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        response = prompt_chain.invoke(
+        response = await prompt_chain.ainvoke(
             {
                 "job_description": state["job_description"]
             }
@@ -223,9 +223,9 @@ class EvaluateSkillsNode(BaseNode):
         self.prompt = prompts.get_skills_analysis_prompt()
         self.chain = chains.set_resume_evaluation_chain(self.prompt)
 
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        response = prompt_chain.invoke(
+        response = await prompt_chain.ainvoke(
             {
                 "resume_details": state["resume_details"]
             }
@@ -249,9 +249,9 @@ class EvaluateRecruitlNode(BaseNode):
         self.prompt = prompts.get_recruit_analysis_prompt()
         self.chain = chains.set_recruit_evaluation_chain(self.prompt)
 
-    def execute(self, state: AgentState) -> dict:
+    async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        response = prompt_chain.invoke(
+        response = await prompt_chain.ainvoke(
             {
                 "company": state["jd_details"]["company"],
                 "company_information": state["jd_details"]["company_information"],
