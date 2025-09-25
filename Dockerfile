@@ -6,8 +6,12 @@ WORKDIR /app
 
 COPY pyproject.toml .
 
-RUN uv pip install --system torch --extra-index-url https://download.pytorch.org/whl/cpu && \
-    uv pip sync --system pyproject.toml
+RUN uv pip install --system \
+    torch \
+    torchvision \
+    --extra-index-url https://download.pytorch.org/whl/cpu
+
+RUN uv pip sync --system pyproject.toml
 
 COPY ./src ./src
 
