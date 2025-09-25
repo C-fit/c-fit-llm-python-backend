@@ -11,7 +11,7 @@ RUN uv pip install --system torch --extra-index-url https://download.pytorch.org
 
 COPY ./src ./src
 
-LABEL org.opencontainers.image.source="https://github.com/C-fit/c-fit-llm-python-backend"
+LABEL org.opencontainers.image.source=https://github.com/C-fit/c-fit-llm-python-backend
 
 EXPOSE 8000
 
