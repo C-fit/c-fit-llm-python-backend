@@ -4,18 +4,14 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /app
 
-COPY pyproject.toml .
-
 RUN uv pip install --system \
     torch \
     torchvision \
     --extra-index-url https://download.pytorch.org/whl/cpu
 
-RUN uv pip install --system \
-    docling \
-    --extra-index-url https://download.pytorch.org/whl/cpu
+COPY requirements.txt .
 
-RUN uv pip sync --system pyproject.toml
+RUN uv pip install --system -r requirements.txt
 
 COPY ./src ./src
 
