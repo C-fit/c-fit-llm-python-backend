@@ -13,6 +13,6 @@ COPY ./src ./src
 
 LABEL org.opencontainers.image.source=https://github.com/C-fit/c-fit-llm-python-backend
 
-EXPOSE 8000
+EXPOSE 8080
 
-CMD ["uv", "run", "uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD uvicorn src.server:app --host 0.0.0.0 --port ${PORT:-8080}
