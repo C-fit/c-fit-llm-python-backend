@@ -7,6 +7,7 @@ from typing import Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from psycopg_pool import AsyncConnectionPool
 
 # NOTE: Local 개발 용 sqlite 사용
 # from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -35,24 +36,38 @@ lifespan 설정
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 랩터(Raptor)나 다른 배포 환경에 설정된 환경 변수에서 DB URL을 가져옴
     DB_URL = os.environ.get("LANGGRAPH_DB_URL")
-    
+
     if not DB_URL:
         raise RuntimeError("LANGGRAPH_DB_URL 환경 변수가 설정되지 않았습니다.")
-        
-    async with AsyncPostgresSaver.from_conn_string(DB_URL) as checkpointer:
-        await checkpointer.setup()
-        
-        app.state.checkpointer = checkpointer
-        print("PostgreSQL Checkpointer Ready.")
+    
+    # 1. 커넥션 풀 생성
+    pool = AsyncConnectionPool(
+        conninfo=DB_URL,
+        open=False,
+        kwargs={"prepare_threshold": None}
+        )
+    await pool.open()
+
+    # 2. langgraph Saver에 커넥션 풀 넘기기
+    checkpointer = AsyncPostgresSaver(pool)
+    await checkpointer.setup()
+    app.state.checkpointer = checkpointer
+    app.state.db_pool = pool  # 필요시 직접 사용 가능
+    try:
         yield
-    print("PostgreSQL Checkpointer Closed.")
+    finally:
+        await pool.close()
+        print("PostgreSQL Pool Closed.")
 
 
 """
 ResponseModel 설정
 """
+class PreprocessResponse(BaseModel):
+    resume_details: Dict[str, Any] = Field(description="이력서에서 추출된 주요 정보")
+    jd_details: Dict[str, Any] = Field(description="JD에서 추출된 주요 정보")
+
 class PreprocessResumeResponse(BaseModel):
     # 이력서 전처리 후에는 이력서의 주요 정보만 요약해서 보내줌
     resume_details: Dict[str, Any] = Field(description="이력서에서 추출된 주요 정보")
@@ -88,6 +103,46 @@ app.add_middleware(
 """
 endpoint 설정
 """
+@app.post("/preprocess")
+async def preprocess_endpoint(
+    request: Request,
+    thread_id: str = Form(...),
+    resume_file: UploadFile = File(None),
+    jd_url: str = Form(None)
+):
+    """이력서 파일 또는 JD URL을 받아 전처리하고, 해당 thread_id의 상태를 업데이트"""
+    results = {}
+    temp_file_path = None
+    try:
+        
+        if resume_file is not None:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+                shutil.copyfileobj(resume_file.file, tmp_file)
+                temp_file_path = tmp_file.name
+            graph = wk.PreprocessResumeWorkflow(AgentState).build()
+            work = graph.compile(checkpointer=request.app.state.checkpointer)
+            initial_state = {"resume_file": temp_file_path}
+            config = {"configurable": {"thread_id": thread_id}}
+            await work.ainvoke(initial_state, config=config)
+            final_state = await work.aget_state(config)
+            results["resume_details"] = final_state.values.get("resume_details", {})
+        
+        if jd_url is not None:
+            graph = wk.PreprocessJDWorkflow(AgentState).build()
+            work = graph.compile(checkpointer=request.app.state.checkpointer)
+            initial_state = {"jd_url": jd_url}
+            config = {"configurable": {"thread_id": thread_id}}
+            await work.ainvoke(initial_state, config=config)
+            final_state = await work.aget_state(config)
+            results["jd_details"] = final_state.values.get("jd_details", {})
+        if not results:
+            raise HTTPException(status_code=400, detail="resume_file 또는 jd_url 중 하나는 반드시 입력해야 합니다.")
+        return results
+    finally:
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+
+
 @app.post("/preprocess-resume")
 async def preprocess_resume_endpoint(
     request: Request,

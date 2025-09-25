@@ -1,0 +1,20 @@
+# environment variables
+.env
+.vscode
+
+# local files
+pdf/
+
+# SQLite DB Test files
+checkpoint.sqlite*
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
