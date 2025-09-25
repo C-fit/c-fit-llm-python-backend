@@ -11,6 +11,10 @@ RUN uv pip install --system \
     torchvision \
     --extra-index-url https://download.pytorch.org/whl/cpu
 
+RUN uv pip install --system \
+    docling \
+    --extra-index-url https://download.pytorch.org/whl/cpu
+
 RUN uv pip sync --system pyproject.toml
 
 COPY ./src ./src
