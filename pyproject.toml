@@ -16,5 +16,5 @@ dependencies = [
     "psycopg[binary]>=3.2.10",
     "python-multipart>=0.0.20",
     "trafilatura>=2.0.0",
-    "uvicorn>=0.36.0",
+    "uvicorn[standard]>=0.36.0",
 ]
