@@ -33,8 +33,6 @@ jobs:
           images: catuscio/c-fit-langgraph-backend
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
 
       - name: Build and push Docker image (amd64 only)
         id: push
