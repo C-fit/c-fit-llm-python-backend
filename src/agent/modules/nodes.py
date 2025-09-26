@@ -12,26 +12,10 @@ import src.agent.modules.prompts as prompts
 
 from trafilatura import fetch_url, extract
 
-from src.preprocess.pdf_loader import load_pdf
-from src.preprocess.url_loader import load_url
-
 
 """
 Step 0. 전처리
 """
-class ResumePdfToMarkdownNode(BaseNode):
-    """이력서 pdf 파일을 markdown으로 변환하는 노드
-
-    Args:
-        resume_file (str): 이력서 파일 경로
-
-    Returns:
-        resume (str): 이력서 전문 markdown text
-    """
-    async def execute(self, state: AgentState) -> dict:
-        result = load_pdf(state["resume_file"])
-        return {"resume": result}
-    
 
 class JDUrlToMarkdown(BaseNode):
     """JD URL을 markdown으로 변환하는 노드
