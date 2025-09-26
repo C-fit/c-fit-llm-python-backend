@@ -6,11 +6,10 @@ WORKDIR /app
 
 COPY pyproject.toml .
 
-RUN uv pip sync --system pyproject.toml
+RUN uv pip install --system \
+    -r pyproject.toml 
 
 COPY ./src ./src
-
-LABEL org.opencontainers.image.source=https://github.com/C-fit/c-fit-llm-python-backend
 
 EXPOSE 8080
 
