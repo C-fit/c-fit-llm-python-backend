@@ -3,27 +3,17 @@
 
 해당 클래스 모듈은 각각 노드 클래스가 BaseNode를 상속받아 노드 클래스를 구현하는 모듈입니다.
 """
-
-import os
-import base64
-import json
 import json_repair
-from typing import Dict, Any
-
-from langchain_core.runnables import RunnableSerializable
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate
 
 from src.agent.utils.base_node import BaseNode
 import src.agent.modules.chains as chains
 from src.agent.modules.states import AgentState
 import src.agent.modules.prompts as prompts
 
+from trafilatura import fetch_url, extract
+
 from src.preprocess.pdf_loader import load_pdf
 from src.preprocess.url_loader import load_url
-
-from dotenv import load_dotenv
-load_dotenv()
 
 
 """
@@ -53,7 +43,8 @@ class JDUrlToMarkdown(BaseNode):
         job_description (str): 채용공고 전문 markdown text
     """
     async def execute(self, state: AgentState) -> dict:
-        result = load_url(state["jd_url"])
+        downloaded = fetch_url(state["jd_url"])
+        result = extract(downloaded, output_format="markdown", with_metadata=True)
         return {"job_description": result}
     
 
@@ -226,7 +217,7 @@ class JDDecompositionNode(BaseNode):
 """
 평가 관련 노드
 """
-class EvaluateSkillsNode(BaseNode):
+class EvaluateResumeNode(BaseNode):
     """이력서를 토대로 지원자의 역량을 평가하는 노드
 
     Args:
@@ -247,12 +238,11 @@ class EvaluateSkillsNode(BaseNode):
                 "resume_details": state["resume_details"]
             }
         )
-        # result = json_repair.loads(response)
 
         return{"applicant_skills": response}
     
 
-class EvaluateRecruitlNode(BaseNode):
+class EvaluateFitNode(BaseNode):
     """이력서와 JD를 토대로 지원자의 역량을 평가하는 노드
 
     Args:
@@ -268,20 +258,22 @@ class EvaluateRecruitlNode(BaseNode):
 
     async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        response = await prompt_chain.ainvoke(
-            {
-                "company": state["jd_details"]["company"],
-                "company_information": state["jd_details"]["company_information"],
-                "title": state["jd_details"]["title"],
-                "introduction": state["jd_details"]["introduction"],
-                "responsibilities": state["jd_details"]["responsibilities"],
-                "qualification": state["jd_details"]["qualification"],
-                "preference": state["jd_details"]["preference"],
-                "skills": state["jd_details"]["skills"],
-                "tech_stacks": state["jd_details"]["tech_stacks"],
-                "resume_details": state["resume_details"]
-            }
-        )
-        # result = json_repair.loads(response)
+        jd_details = state.get("jd_details", {})
+        context = {
+            "company": jd_details.get("company", "정보 없음"),
+            "title": jd_details.get("title", "정보 없음"),
+
+            "company_information": jd_details.get("company_information", ""),
+            "introduction": jd_details.get("introduction", ""),
+            "responsibilities": jd_details.get("responsibilities", []),
+            "qualification": jd_details.get("qualification", []),
+            "preference": jd_details.get("preference", "우대사항 정보 없음"),
+            "skills": jd_details.get("skills", "필요 역량 정보 없음"),
+            "tech_stacks": jd_details.get("tech_stacks", []),
+
+            "resume_details": state.get("resume_details", {})
+        }
+
+        response = await prompt_chain.ainvoke(context)
 
         return{"applicant_recruitment": response}

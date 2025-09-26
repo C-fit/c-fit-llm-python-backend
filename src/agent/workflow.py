@@ -44,8 +44,8 @@ class MainWorkflow(BaseWorkflow):
         builder.add_node("decompose_jd", nd.JDDecompositionNode())
 
         # 평가 노드
-        builder.add_node("evaluate_skills", nd.EvaluateSkillsNode())
-        builder.add_node("evaluate_recruitment", nd.EvaluateRecruitlNode())
+        builder.add_node("evaluate_skills", nd.EvaluateResumeNode())
+        builder.add_node("evaluate_recruitment", nd.EvaluateFitNode())
 
         # 그래프 연결
         builder.add_edge("__start__", "extract_resume")
@@ -82,9 +82,6 @@ class PreprocessResumeWorkflow(BaseWorkflow):
     def build(self):
         builder = StateGraph(self.state)
 
-        # 이력서 PDF 및 채용공고 URL 전처리 노드
-        builder.add_node("extract_resume", nd.ResumePdfToMarkdownNode())
-
         # 이력서 전처리 노드
         builder.add_node("decompose_resume", nd.ResumeDecompositionNode())
         builder.add_node("decompose_experiences", nd.ResumeExperiencesNode())
@@ -92,9 +89,7 @@ class PreprocessResumeWorkflow(BaseWorkflow):
         builder.add_node("extract_company_projects", nd.ResumeCompanyProjectsNode())
 
         # 그래프 연결
-        builder.add_edge("__start__", "extract_resume")
-
-        builder.add_edge("extract_resume", "decompose_resume")
+        builder.add_edge("__start__", "decompose_resume")
         builder.add_edge("decompose_resume", "decompose_experiences")
         builder.add_edge("decompose_experiences", "decompose_projects")
         builder.add_edge("decompose_projects", "extract_company_projects")
@@ -145,7 +140,7 @@ class AnalyzeResumeWorkflow(BaseWorkflow):
         builder = StateGraph(self.state)
 
         # 평가 노드
-        builder.add_node("evaluate_skills", nd.EvaluateSkillsNode())
+        builder.add_node("evaluate_skills", nd.EvaluateResumeNode())
 
         # 그래프 연결
         builder.add_edge("__start__", "evaluate_skills")
@@ -156,7 +151,7 @@ class AnalyzeResumeWorkflow(BaseWorkflow):
         return builder
     
 
-class AnalyzeRecruitWorkflow(BaseWorkflow):
+class AnalyzeFitWorkflow(BaseWorkflow):
     """
     이력서 && JD 비교 분석 Workflow
     """
@@ -169,7 +164,7 @@ class AnalyzeRecruitWorkflow(BaseWorkflow):
         builder = StateGraph(self.state)
 
         # 평가 노드
-        builder.add_node("evaluate_recruitment", nd.EvaluateRecruitlNode())
+        builder.add_node("evaluate_recruitment", nd.EvaluateFitNode())
 
         # 그래프 연결
         builder.add_edge("__start__", "evaluate_recruitment")
@@ -178,15 +173,3 @@ class AnalyzeRecruitWorkflow(BaseWorkflow):
         # workflow = builder.compile()  # 그래프 컴파일
         builder.name = self.name  # Workflow 이름 설정
         return builder
-
-
-# initial_state = {
-#     "resume_file": "/home/catusciows/workspace/c-fit/pdf/이력서.pdf",
-#     "jd_url": "https://www.wanted.co.kr/wd/290088"
-# }
-
-# main_workflow = MainWorkflow(AgentState)
-# work = main_workflow.build()
-# result = work.invoke(initial_state)
-
-# print(result)

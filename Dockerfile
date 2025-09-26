@@ -14,4 +14,4 @@ LABEL org.opencontainers.image.source=https://github.com/C-fit/c-fit-llm-python-
 
 EXPOSE 8080
 
-CMD uvicorn src.server:app --host 0.0.0.0 --port ${PORT:-8080}
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}

@@ -3,10 +3,7 @@ Agent가 사용하는 각 데이터들의 스키마를 정의합니다.
 """
 
 from __future__ import annotations
-
-from dataclasses import dataclass
-from langgraph.graph.message import add_messages
-from typing import Annotated, TypedDict, Dict, List, Any, Optional
+from typing import Annotated, TypedDict, List, NotRequired
 
 
 def merge_dict(existing: dict, new: dict) -> dict:
@@ -53,16 +50,16 @@ class ResumeDict(TypedDict):
 class JobDescriptionDict(TypedDict):
     title: str                  # 직무명
     company: str                # 회사명
-    company_information: str    # 회사 소개 요약
-    introduction: str           # 직무 요약
-    responsibilities: str       # 주요 업무
-    qualification: str          # 자격요건
-    preference: str             # 우대사항
-    skills: str                 # 필요 역량
-    benefits: str               # 혜택 및 복지
-    conditions: str             # 근무 조건
-    process: str                # 채용 프로세스
-    tech_stacks: str            # 기술 스택
+    company_information: NotRequired[str]    # 회사 소개 요약
+    introduction: NotRequired[str]           # 직무 요약
+    responsibilities: NotRequired[str]       # 주요 업무
+    qualification: NotRequired[str]          # 자격요건
+    preference: NotRequired[str]             # 우대사항
+    skills: NotRequired[str]                 # 필요 역량
+    benefits: NotRequired[str]               # 혜택 및 복지
+    conditions: NotRequired[str]             # 근무 조건
+    process: NotRequired[str]                # 채용 프로세스
+    tech_stacks: NotRequired[str]            # 기술 스택
 
 
 """
