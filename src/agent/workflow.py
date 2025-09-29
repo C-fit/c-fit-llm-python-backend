@@ -31,7 +31,6 @@ class MainWorkflow(BaseWorkflow):
         builder = StateGraph(self.state)
 
         # 이력서 PDF 및 채용공고 URL 전처리 노드
-        builder.add_node("extract_resume", nd.ResumePdfToMarkdownNode())
         builder.add_node("extract_jd", nd.JDUrlToMarkdown())
 
         # 이력서 전처리 노드
