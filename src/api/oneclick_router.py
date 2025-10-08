@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Form
-from src.services import analyze_services
+from fastapi import APIRouter, Depends, UploadFile, File, Form
+from src.services import oneclick_services
 from src.api.dependencies import get_checkpointer
 
 router = APIRouter()
@@ -7,13 +7,15 @@ router = APIRouter()
 
 # 이력서 분석
 @router.post("/resume")
-async def analyze_resume_endpoint(
+async def oneclick_resume_endpoint(
     checkpointer: any = Depends(get_checkpointer),
     thread_id: str = Form(...),
+    resume_file: UploadFile = File(...)
 ):    
-    current_state = await analyze_services.analyze_resume(
+    current_state = await oneclick_services.oneclick_resume(
         checkpointer=checkpointer,
         thread_id=thread_id,
+        resume_file=resume_file
     )
     return {
         "applicant_skills": current_state.values.get(
@@ -24,14 +26,18 @@ async def analyze_resume_endpoint(
 
 # 핏 분석
 @router.post("/fit")
-async def analyze_fit_endpoint(
+async def oneclick_fit_endpoint(
     checkpointer: any = Depends(get_checkpointer),
     thread_id: str = Form(...),
+    resume_file: UploadFile = File(...),
+    jd_url: str = Form(...)
 ):    
 
-    current_state = await analyze_services.analyze_fit(
+    current_state = await oneclick_services.oneclick_fit(
         checkpointer=checkpointer,
         thread_id=thread_id,
+        resume_file=resume_file,
+        jd_url=jd_url
     )
 
     return {
