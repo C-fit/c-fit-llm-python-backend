@@ -16,7 +16,6 @@ from trafilatura import fetch_url, extract
 """
 Step 0. 전처리
 """
-
 class JDUrlToMarkdown(BaseNode):
     """JD URL을 markdown으로 변환하는 노드
 
