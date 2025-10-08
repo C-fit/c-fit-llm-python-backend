@@ -1,15 +1,8 @@
-import os
 import httpx
-
-from fastapi import  HTTPException, UploadFile, File, Form, Request
-
+from fastapi import  HTTPException, UploadFile
 import src.agent.workflow as wk
 from src.agent.modules.states import AgentState
 from src.core.config import settings
-
-
-from dotenv import load_dotenv
-load_dotenv()
 
 
 async def process_resume(checkpointer: any, thread_id: str, resume_file: UploadFile):
