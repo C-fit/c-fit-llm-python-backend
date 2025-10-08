@@ -23,10 +23,9 @@ app.add_middleware(
     allow_headers=["*"],          # 허용할 HTTP 헤더
 )
 
-
+app.include_router(oneclick_router.router, prefix="/oneclick", tags=["One Click Analysis"])
 app.include_router(process_router.router, prefix="/process", tags=["Data Processing"])
 app.include_router(analyze_router.router, prefix="/analyze", tags=["AI Analysis"])
-app.include_router(oneclick_router.router, prefix="/oneclick", tags=["One Click Analysis"])
 
 
 @app.get("/", tags=["Root"])
