@@ -11,7 +11,7 @@ app = FastAPI(
 )
 
 origins = [
-    "http://localhost:3000",  # 로컬 FE 개발 서버
+    "http://localhost:3000",  # 로컬 FE 개발 서버 
 ]
 
 app.add_middleware(
