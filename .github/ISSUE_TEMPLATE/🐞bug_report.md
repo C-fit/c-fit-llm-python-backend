@@ -3,7 +3,7 @@ name: "\U0001F41E버그"
 about: 버그 혹은 에러
 title: "[\U0001F41EBug]"
 labels: Bug
-assignees: catuscio
+assignees: 
 
 ---
 

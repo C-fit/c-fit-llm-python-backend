@@ -11,6 +11,10 @@ RUN uv pip install --system \
 
 COPY ./src ./src
 
-EXPOSE 8080
+# 환경변수 설정
+ENV PORT=8000
 
-CMD uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8080}
+EXPOSE $PORT
+
+# 환경변수 사용
+CMD uvicorn src.main:app --host 0.0.0.0 --port $PORT

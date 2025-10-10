@@ -1,0 +1,39 @@
+- name: "Feature"
+  color: "0e8a16"
+  description: "새로운 기능 추가"
+
+- name: "Bug"
+  color: "d73a4a"
+  description: "버그 수정"
+
+- name: "Front"
+  color: "0075ca"
+  description: "Front-end 작업"
+
+- name: "Back"
+  color: "1a237e"
+  description: "Back-end 작업"
+
+- name: "AI"
+  color: "7b1fa2"
+  description: "AI 작업"
+
+- name: "Design"
+  color: "e91e63"
+  description: "Design 작업"
+
+- name: "Ops"
+  color: "6e6e6e"
+  description: "DevOps 작업"
+
+- name: "Enhancement"
+  color: "87ceeb"
+  description: "기존 기능 개선"
+
+- name: "Documentation"
+  color: "8b4513"
+  description: "문서 작업"
+
+- name: "Help Wanted"
+  color: "ffd700"
+  description: "도움이 필요한 이슈"
