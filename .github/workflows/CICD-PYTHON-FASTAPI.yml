@@ -233,6 +233,7 @@ jobs:
             docker run -d \
               -p "${PORT}:8000" \
               --name "$CONTAINER_NAME" \
+              --env-file .env \
               -e TZ=Asia/Seoul \
               -v /etc/localtime:/etc/localtime:ro \
               -v "${HOST_MOUNT_PATH}:${CONTAINER_MOUNT_PATH}" \
