@@ -11,11 +11,11 @@ on:
   push:
     branches:
       # NOTE: 사용 할 브랜치만 빼고 주석처리
-      # - main      # 프로덕션 배포
-      # - release   # 프로덕션 배포
-      # - develop   # 개발 환경 배포
-      - test      # 테스트 환경 배포
-  workflow_dispatch:  # 수동 실행 허용
+      # - main     # 프로덕션 배포
+      # - release  # 프로덕션 배포
+      # - develop  # 개발 환경 배포
+      - test     # 테스트 환경 배포
+  workflow_dispatch:   # 수동 실행 허용
 
 jobs:
   # ===================================================================
@@ -35,41 +35,27 @@ jobs:
         id: config
         run: |
           echo "⚙️ deploy.env 파일에서 빌드 설정을 로드합니다..."
-          
-          # deploy.env 파일 읽기
           while IFS='=' read -r key value; do
-            # 주석과 빈 줄 무시
             if [[ ! $key =~ ^#.*$ ]] && [[ -n $key ]] && [[ ! $key =~ ^[[:space:]]*$ ]]; then
-              # 앞뒤 공백 제거
               key=$(echo "$key" | xargs)
               value=$(echo "$value" | xargs)
-              
-              # 환경변수 형태로 변환하여 GitHub Actions 출력에 설정
               echo "${key}=${value}" >> $GITHUB_OUTPUT
               echo "✅ 설정 로드: ${key}=${value}"
             fi
           done < .github/config/deploy.env
 
-      # 3. .env 파일 생성
-      - name: .env 파일 생성
-        run: |
-          cat > .env << 'EOF'
-          ${{ secrets.ENV }}
-          EOF
-          echo "✅ .env 파일이 생성되었습니다"
-
-      # 4. Docker 빌드 환경 설정
+      # 3. Docker 빌드 환경 설정 (기존 4번)
       - name: Docker 빌드환경 설정
         uses: docker/setup-buildx-action@v3
 
-      # 5. DockerHub 로그인
+      # 4. DockerHub 로그인 (기존 5번)
       - name: DockerHub 로그인
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 6. Docker 레이어 캐싱 설정
+      # 5. Docker 레이어 캐싱 설정 (기존 6번)
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
@@ -78,7 +64,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      # 7. Docker 이미지 빌드 및 푸시
+      # 6. Docker 이미지 빌드 및 푸시 (기존 7번)
       - name: Docker 이미지 빌드 및 푸시
         uses: docker/build-push-action@v5
         with:
@@ -89,7 +75,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      # 8. Docker 캐시 정리
+      # 7. Docker 캐시 정리 (기존 8번)
       - name: Move Docker cache
         run: |
           rm -rf /tmp/.buildx-cache
@@ -113,16 +99,10 @@ jobs:
         id: config
         run: |
           echo "📄 deploy.env 파일에서 설정을 로드합니다..."
-          
-          # deploy.env 파일 읽기
           while IFS='=' read -r key value; do
-            # 주석과 빈 줄 무시
             if [[ ! $key =~ ^#.*$ ]] && [[ -n $key ]] && [[ ! $key =~ ^[[:space:]]*$ ]]; then
-              # 앞뒤 공백 제거
               key=$(echo "$key" | xargs)
               value=$(echo "$value" | xargs)
-              
-              # 환경변수 형태로 변환하여 GitHub Actions 출력에 설정
               echo "${key}=${value}" >> $GITHUB_OUTPUT
               echo "✅ 설정 로드: ${key}=${value}"
             fi
@@ -143,22 +123,14 @@ jobs:
             # 설정값 로드
             # ============================================================
             echo "🔧 배포 설정 로드 중..."
-            
-            # GitHub에서 전달받은 브랜치명
             BRANCH="${{ github.ref_name }}"
-            
-            # 프로젝트 설정 (config 파일에서 로드된 값들)
             PROJECT_NAME="${{ steps.config.outputs.PROJECT_NAME }}"
             PROJECT_BASE_PATH="${{ steps.config.outputs.PROJECT_BASE_PATH }}"
             PROJECT_FOLDER_NAME="${{ steps.config.outputs.PROJECT_FOLDER_NAME }}"
             PROJECT_SUB_PATH="${{ steps.config.outputs.PROJECT_SUB_PATH }}"
-            
-            # 포트 설정
             PRODUCTION_PORT="${{ steps.config.outputs.PRODUCTION_PORT }}"
             DEVELOPMENT_PORT="${{ steps.config.outputs.DEVELOPMENT_PORT }}"
             TEST_PORT="${{ steps.config.outputs.TEST_PORT }}"
-            
-            # 경로 설정 (PROJECT_NAME 기반으로 통합)
             HOST_MOUNT_PATH="${PROJECT_BASE_PATH}/${PROJECT_FOLDER_NAME}/${PROJECT_SUB_PATH}"
             CONTAINER_MOUNT_PATH="/mnt/${PROJECT_FOLDER_NAME}"
 
@@ -166,38 +138,30 @@ jobs:
             # 브랜치별 포트 및 컨테이너명 설정
             # ============================================================
             if [ "$BRANCH" == "main" ] || [ "$BRANCH" == "release" ]; then
-              # 🏭 프로덕션 환경
               PORT="$PRODUCTION_PORT"
               CONTAINER_NAME="${PROJECT_NAME}"
               echo "🏭 프로덕션 환경으로 배포합니다"
-
             elif [ "$BRANCH" == "develop" ]; then
-              # 🖥️ 개발 환경
               PORT="$DEVELOPMENT_PORT"
               CONTAINER_NAME="${PROJECT_NAME}-dev"
               echo "🖥️ 개발 환경으로 배포합니다"
-
             elif [ "$BRANCH" == "test" ]; then
-              # 🧪 테스트 환경
               PORT="$TEST_PORT"
               CONTAINER_NAME="${PROJECT_NAME}-test"
               echo "🧪 테스트 환경으로 배포합니다"
-
             else
-              # ⚠️ 지원하지 않는 브랜치
               echo "⚠️ 지원하지 않는 브랜치입니다: $BRANCH"
               exit 1
             fi
 
-            # 설정 정보 출력
-            echo "📋 배포 설정 정보:"
-            echo "  - 프로젝트: $PROJECT_NAME"
-            echo "  - 브랜치: $BRANCH"
-            echo "  - Docker 이미지: ${{ secrets.DOCKERHUB_USERNAME }}/${PROJECT_NAME}:${BRANCH}"
-            echo "  - 컨테이너 이름: $CONTAINER_NAME"
-            echo "  - 포트: $PORT"
-            echo "  - 호스트 마운트 경로: $HOST_MOUNT_PATH"
-            echo "  - 컨테이너 마운트 경로: $CONTAINER_MOUNT_PATH"
+            echo "📋 배포 설정 정보: ..." # (설정 정보 출력은 생략)
+
+            # ============================================================
+            # 🔑 원격 서버에 .env 파일 생성
+            # ============================================================
+            echo "📝 원격 서버에 .env 파일을 생성합니다..."
+            echo "${{ secrets.ENV }}" > .env
+            echo "✅ .env 파일이 성공적으로 생성되었습니다."
 
             # ============================================================
             # Docker 이미지 풀 (Pull)
@@ -209,7 +173,6 @@ jobs:
             # 기존 컨테이너 정리
             # ============================================================
             echo "🧹 컨테이너 $CONTAINER_NAME 존재 여부 확인 중..."
-
             if docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}\$"; then
               echo "⚠️ 컨테이너 $CONTAINER_NAME 이(가) 존재합니다. 중지 및 삭제 중..."
               docker rm -f "$CONTAINER_NAME"
@@ -228,8 +191,6 @@ jobs:
             # 새 컨테이너 실행
             # ============================================================
             echo "🚀 새로운 컨테이너 $CONTAINER_NAME 실행 중..."
-
-            # Docker 컨테이너 실행
             docker run -d \
               -p "${PORT}:8000" \
               --name "$CONTAINER_NAME" \
@@ -240,17 +201,12 @@ jobs:
               "${{ secrets.DOCKERHUB_USERNAME }}/${PROJECT_NAME}:${BRANCH}"
 
             # ============================================================
+            # 사용하지 않는 Docker 이미지 정리 (선택 사항)
+            # ============================================================
+            echo "🧹 사용하지 않는 Docker 이미지를 정리합니다..."
+            docker image prune -f
+
+            # ============================================================
             # 배포 완료 확인
             # ============================================================
-            echo "✅ 배포가 성공적으로 완료되었습니다!"
-            echo ""
-            echo "📋 배포 결과 요약:"
-            echo "  🎯 프로젝트: $PROJECT_NAME"
-            echo "  🌿 브랜치: $BRANCH"
-            echo "  🐳 컨테이너: $CONTAINER_NAME"
-            echo "  🌐 포트: $PORT"
-            echo "  📂 호스트 경로: $HOST_MOUNT_PATH"
-            echo "  📁 컨테이너 경로: $CONTAINER_MOUNT_PATH"
-            echo "  ⏰ 배포 시간: $(date '+%Y-%m-%d %H:%M:%S')"
-            echo ""
-            echo "🔗 접속 URL: http://${{ secrets.SERVER_HOST }}:${PORT}/docs"
+            echo "✅ 배포가 성공적으로 완료되었습니다!" # (결과 요약은 생략)
