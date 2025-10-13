@@ -1,13 +1,22 @@
-from fastapi import UploadFile, HTTPException
 import httpx
+import uuid
+
+from fastapi import UploadFile, HTTPException
 
 import src.agent.workflow as wk
 from src.agent.modules.states import AgentState
 from src.core.config import settings
+from src.models.user import User
 
 
-async def oneclick_resume(checkpointer: any, thread_id: str, resume_file: UploadFile):
+async def oneclick_resume(
+        resume_file: UploadFile,
+        checkpointer: any,
+        current_user: User
+):
     """해당 thread_id의 이력서를 분석하고, 상태를 업데이트"""
+    thread_id = f"user_{current_user.id}_{uuid.uuid4()}"
+
     file_content = await resume_file.read()
 
     files = {
@@ -51,13 +60,23 @@ async def oneclick_resume(checkpointer: any, thread_id: str, resume_file: Upload
     return final_state
 
 
-async def oneclick_fit(checkpointer: any, thread_id: str, resume_file: UploadFile, jd_url: str):
+async def oneclick_fit(
+        resume_file: UploadFile,
+        jd_url: str,
+        checkpointer: any,
+        current_user: User
+):
     """해당 thread_id의 이력서와 JD를 분석하고, 상태를 업데이트"""
+    thread_id = f"user_{current_user.id}_{uuid.uuid4()}"
 
     file_content = await resume_file.read()
 
     files = {
         'resume_file': (resume_file.filename, file_content, resume_file.content_type)
+    }
+
+    headers = {
+        "X-API-KEY": settings.PARSE_API_KEY
     }
     
     async with httpx.AsyncClient() as client:
@@ -65,6 +84,7 @@ async def oneclick_fit(checkpointer: any, thread_id: str, resume_file: UploadFil
             response = await client.post(
                 settings.PDF_PARSE_API_ENDPOINT,
                 files=files,
+                headers=headers,
                 timeout=180.0
             )
             response.raise_for_status()

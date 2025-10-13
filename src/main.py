@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.db import lifespan_manager
-from src.api import process_router, analyze_router, oneclick_router
+from src.api import process_router, analyze_router, oneclick_router, auth_router
 
 # FastAPI 애플리케이션 생성 및 lifespan 등록
 app = FastAPI(
@@ -25,6 +25,7 @@ app.add_middleware(
 app.include_router(oneclick_router.router, prefix="/oneclick", tags=["One Click Analysis"])
 app.include_router(process_router.router, prefix="/process", tags=["Data Processing"])
 app.include_router(analyze_router.router, prefix="/analyze", tags=["AI Analysis"])
+app.include_router(auth_router.router, prefix="/auth", tags=["User Authentication"])
 
 
 @app.get("/", tags=["Root"])

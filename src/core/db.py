@@ -5,8 +5,6 @@ from fastapi import FastAPI
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
 
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
-
 @asynccontextmanager
 async def lifespan_manager(app: FastAPI):
     """
