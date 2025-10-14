@@ -59,12 +59,17 @@ async def oneclick_fit(checkpointer: any, thread_id: str, resume_file: UploadFil
     files = {
         'resume_file': (resume_file.filename, file_content, resume_file.content_type)
     }
+
+    headers = {
+        "X-API-KEY": settings.PARSE_API_KEY
+    }
     
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(
                 settings.PDF_PARSE_API_ENDPOINT,
                 files=files,
+                headers=headers,
                 timeout=180.0
             )
             response.raise_for_status()
