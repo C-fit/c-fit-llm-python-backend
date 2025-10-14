@@ -24,7 +24,7 @@ async def oneclick_resume(checkpointer: any, thread_id: str, resume_file: Upload
                 settings.PDF_PARSE_API_ENDPOINT,
                 files=files,
                 headers=headers,
-                timeout=180.0
+                timeout=360.0
             )
             response.raise_for_status()
             result = response.json()
@@ -70,7 +70,7 @@ async def oneclick_fit(checkpointer: any, thread_id: str, resume_file: UploadFil
                 settings.PDF_PARSE_API_ENDPOINT,
                 files=files,
                 headers=headers,
-                timeout=180.0
+                timeout=360.0
             )
             response.raise_for_status()
             result = response.json()
