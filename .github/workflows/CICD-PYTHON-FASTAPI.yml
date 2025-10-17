@@ -97,12 +97,12 @@ jobs:
       - name: 배포 설정 로드
         id: config
         run: |
-          echo "⚙️ deploy.env 파일에서 배포 설정을 환경변수로 등록합니다..."
+          echo "📄 deploy.env 파일에서 설정을 로드합니다..."
           while IFS='=' read -r key value; do
             if [[ ! $key =~ ^#.*$ ]] && [[ -n $key ]] && [[ ! $key =~ ^[[:space:]]*$ ]]; then
               key=$(echo "$key" | xargs)
               value=$(echo "$value" | xargs)
-              echo "export ${key}='${value}'" >> $GITHUB_ENV
+              echo "${key}=${value}" >> $GITHUB_OUTPUT
             fi
           done < .github/config/deploy.env
 
@@ -120,14 +120,15 @@ jobs:
             # 설정값 로드
             # ============================================================
             echo "🔧 배포 설정 로드 중..."
-            export PROJECT_NAME='${{ env.PROJECT_NAME }}'
-            export PROJECT_BASE_PATH='${{ env.PROJECT_BASE_PATH }}'
-            export PROJECT_FOLDER_NAME='${{ env.PROJECT_FOLDER_NAME }}'
-            export PROJECT_SUB_PATH='${{ env.PROJECT_SUB_PATH }}'
-            export PRODUCTION_PORT='${{ env.PRODUCTION_PORT }}'
-            export DEVELOPMENT_PORT='${{ env.DEVELOPMENT_PORT }}'
-            export TEST_PORT='${{ env.TEST_PORT }}'
+            echo "🔧 배포 설정 로드 중..."
             BRANCH="${{ github.ref_name }}"
+            PROJECT_NAME="${{ steps.config.outputs.PROJECT_NAME }}"
+            PROJECT_BASE_PATH="${{ steps.config.outputs.PROJECT_BASE_PATH }}"
+            PROJECT_FOLDER_NAME="${{ steps.config.outputs.PROJECT_FOLDER_NAME }}"
+            PROJECT_SUB_PATH="${{ steps.config.outputs.PROJECT_SUB_PATH }}"
+            PRODUCTION_PORT="${{ steps.config.outputs.PRODUCTION_PORT }}"
+            DEVELOPMENT_PORT="${{ steps.config.outputs.DEVELOPMENT_PORT }}"
+            TEST_PORT="${{ steps.config.outputs.TEST_PORT }}"
             HOST_MOUNT_PATH="${PROJECT_BASE_PATH}/${PROJECT_FOLDER_NAME}/${PROJECT_SUB_PATH}"
             CONTAINER_MOUNT_PATH="/mnt/${PROJECT_FOLDER_NAME}"
 
