@@ -24,14 +24,6 @@ jobs:
   build:
     name: 애플리케이션 빌드
     runs-on: ubuntu-latest
-    outputs:
-      project_name: ${{ steps.config.outputs.PROJECT_NAME }}
-      project_base_path: ${{ steps.config.outputs.PROJECT_BASE_PATH }}
-      project_folder_name: ${{ steps.config.outputs.PROJECT_FOLDER_NAME }}
-      project_sub_path: ${{ steps.config.outputs.PROJECT_SUB_PATH }}
-      production_port: ${{ steps.config.outputs.PRODUCTION_PORT }}
-      development_port: ${{ steps.config.outputs.DEVELOPMENT_PORT }}
-      test_port: ${{ steps.config.outputs.TEST_PORT }}
      
     steps:
       - name: 코드 체크아웃
@@ -96,6 +88,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: deploy.env 파일 생성
+        run: echo "${{ secrets.DEPLOY_ENV }}" > .github/config/deploy.env
+
+      - name: 배포 설정 로드
+        id: config
+        run: |
+          echo "⚙️ deploy.env 파일에서 배포 설정을 환경변수로 등록합니다..."
+          while IFS='=' read -r key value; do
+            if [[ ! $key =~ ^#.*$ ]] && [[ -n $key ]] && [[ ! $key =~ ^[[:space:]]*$ ]]; then
+              key=$(echo "$key" | xargs)
+              value=$(echo "$value" | xargs)
+              echo "export ${key}='${value}'" >> $GITHUB_ENV
+            fi
+          done < .github/config/deploy.env
+
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -111,13 +118,6 @@ jobs:
             # ============================================================
             echo "🔧 배포 설정 로드 중..."
             BRANCH="${{ github.ref_name }}"
-            PROJECT_NAME="${{ needs.build.outputs.project_name }}"
-            PROJECT_BASE_PATH="${{ needs.build.outputs.project_base_path }}"
-            PROJECT_FOLDER_NAME="${{ needs.build.outputs.project_folder_name }}"
-            PROJECT_SUB_PATH="${{ needs.build.outputs.project_sub_path }}"
-            PRODUCTION_PORT="${{ needs.build.outputs.production_port }}"
-            DEVELOPMENT_PORT="${{ needs.build.outputs.development_port }}"
-            TEST_PORT="${{ needs.build.outputs.test_port }}"
             HOST_MOUNT_PATH="${PROJECT_BASE_PATH}/${PROJECT_FOLDER_NAME}/${PROJECT_SUB_PATH}"
             CONTAINER_MOUNT_PATH="/mnt/${PROJECT_FOLDER_NAME}"
 
