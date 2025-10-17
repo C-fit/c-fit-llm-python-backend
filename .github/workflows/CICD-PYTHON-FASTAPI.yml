@@ -98,13 +98,15 @@ jobs:
         id: config
         run: |
           echo "⚙️ deploy.env 파일에서 배포 설정을 환경변수로 등록합니다..."
+          set -e
           while IFS='=' read -r key value; do
             if [[ ! $key =~ ^#.*$ ]] && [[ -n $key ]] && [[ ! $key =~ ^[[:space:]]*$ ]]; then
               key=$(echo "$key" | xargs)
               value=$(echo "$value" | xargs)
-              echo "export ${key}='${value}'" >> $GITHUB_ENV
+              export "${key}=${value}"
             fi
           done < .github/config/deploy.env
+
 
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
