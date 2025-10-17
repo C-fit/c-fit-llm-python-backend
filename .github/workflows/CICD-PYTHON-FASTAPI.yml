@@ -98,15 +98,13 @@ jobs:
         id: config
         run: |
           echo "⚙️ deploy.env 파일에서 배포 설정을 환경변수로 등록합니다..."
-          set -e
           while IFS='=' read -r key value; do
             if [[ ! $key =~ ^#.*$ ]] && [[ -n $key ]] && [[ ! $key =~ ^[[:space:]]*$ ]]; then
               key=$(echo "$key" | xargs)
               value=$(echo "$value" | xargs)
-              export "${key}=${value}"
+              echo "export ${key}='${value}'" >> $GITHUB_ENV
             fi
           done < .github/config/deploy.env
-
 
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -123,15 +121,13 @@ jobs:
             # ============================================================
             echo "🔧 배포 설정 로드 중..."
             BRANCH="${{ github.ref_name }}"
-            PROJECT_NAME="$PROJECT_NAME"
-            PROJECT_BASE_PATH="$PROJECT_BASE_PATH"
-            PROJECT_FOLDER_NAME="$PROJECT_FOLDER_NAME"
-            PROJECT_SUB_PATH="$PROJECT_SUB_PATH"
-            PRODUCTION_PORT="$PRODUCTION_PORT"
-            DEVELOPMENT_PORT="$DEVELOPMENT_PORT"
-            TEST_PORT="$TEST_PORT"
-            HOST_MOUNT_PATH="${PROJECT_BASE_PATH}/${PROJECT_FOLDER_NAME}/${PROJECT_SUB_PATH}"
-            CONTAINER_MOUNT_PATH="/mnt/${PROJECT_FOLDER_NAME}"
+            export PROJECT_NAME='${{ env.PROJECT_NAME }}'
+            export PROJECT_BASE_PATH='${{ env.PROJECT_BASE_PATH }}'
+            export PROJECT_FOLDER_NAME='${{ env.PROJECT_FOLDER_NAME }}'
+            export PROJECT_SUB_PATH='${{ env.PROJECT_SUB_PATH }}'
+            export PRODUCTION_PORT='${{ env.PRODUCTION_PORT }}'
+            export DEVELOPMENT_PORT='${{ env.DEVELOPMENT_PORT }}'
+            export TEST_PORT='${{ env.TEST_PORT }}'
 
             # ============================================================
             # 브랜치별 포트 및 컨테이너명 설정
