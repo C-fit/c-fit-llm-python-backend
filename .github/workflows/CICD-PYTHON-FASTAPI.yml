@@ -88,6 +88,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+        
       - name: deploy.env 파일 생성
         run: echo "${{ secrets.DEPLOY_ENV }}" > .github/config/deploy.env
 
