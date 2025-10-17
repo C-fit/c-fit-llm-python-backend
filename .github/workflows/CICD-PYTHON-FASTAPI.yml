@@ -120,7 +120,6 @@ jobs:
             # 설정값 로드
             # ============================================================
             echo "🔧 배포 설정 로드 중..."
-            BRANCH="${{ github.ref_name }}"
             export PROJECT_NAME='${{ env.PROJECT_NAME }}'
             export PROJECT_BASE_PATH='${{ env.PROJECT_BASE_PATH }}'
             export PROJECT_FOLDER_NAME='${{ env.PROJECT_FOLDER_NAME }}'
@@ -128,6 +127,9 @@ jobs:
             export PRODUCTION_PORT='${{ env.PRODUCTION_PORT }}'
             export DEVELOPMENT_PORT='${{ env.DEVELOPMENT_PORT }}'
             export TEST_PORT='${{ env.TEST_PORT }}'
+            BRANCH="${{ github.ref_name }}"
+            HOST_MOUNT_PATH="${PROJECT_BASE_PATH}/${PROJECT_FOLDER_NAME}/${PROJECT_SUB_PATH}"
+            CONTAINER_MOUNT_PATH="/mnt/${PROJECT_FOLDER_NAME}"
 
             # ============================================================
             # 브랜치별 포트 및 컨테이너명 설정
