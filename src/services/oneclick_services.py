@@ -89,6 +89,10 @@ async def oneclick_fit(checkpointer: any, thread_id: str, resume_file: UploadFil
     graph = wk.OneclickFitWorkflow(AgentState).build()
     work = graph.compile(checkpointer=checkpointer)
 
+     # resume 객체에 filename 추가
+    if "resume" in result:
+        result["resume"]["filename"] = resume_file.filename
+        
     # generatedAt 추가
     initial_state = {
         **result,
