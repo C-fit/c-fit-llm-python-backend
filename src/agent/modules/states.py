@@ -108,7 +108,7 @@ class AgentState(TypedDict):
 
     # Job 메타
     job: JobMeta
-
+ 
     # 이력서 메타
     resume: ResumeMeta
 
