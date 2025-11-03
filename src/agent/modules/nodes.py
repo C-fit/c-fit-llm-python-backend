@@ -359,10 +359,10 @@ class OverallEvaluationNode(BaseNode):
 
     async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
-        jd_details = state.get("jd_details", {})
+
         context = {
-            "standard_analysis": jd_details.get("standard_analysis"),
-            "deep_dives_analysis": jd_details.get("deep_dives_analysis")
+            "standard_analysis": state["standard_analysis"],
+            "deep_dives_analysis": state["deep_dives_analysis"]
         }
 
         response = await prompt_chain.ainvoke(context)
