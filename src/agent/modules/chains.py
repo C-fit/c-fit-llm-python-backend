@@ -66,7 +66,7 @@ def set_fit_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> Runnab
 
 
 # Fit 종합 평가
-def set_fit_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
+def set_total_evaluation_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
     return (
         RunnablePassthrough.assign(
             standard_analysis = lambda x: x["standard_analysis"],
