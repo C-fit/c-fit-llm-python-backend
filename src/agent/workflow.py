@@ -117,7 +117,7 @@ class OneclickFitWorkflow(BaseWorkflow):
         builder.add_edge("deep_dives_analysis", "overall_analysis")
         builder.add_edge("deep_dives_analysis", "overall_analysis")
         builder.add_edge("overall_analysis", "formatter")
-        builder.add_node("formatter", "__end__")
+        builder.add_edge("formatter", "__end__")
 
         # workflow = builder.compile()  # 그래프 컴파일
         builder.name = self.name  # Workflow 이름 설정

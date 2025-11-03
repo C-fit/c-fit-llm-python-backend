@@ -93,7 +93,10 @@ async def oneclick_fit(checkpointer: any, thread_id: str, resume_file: UploadFil
     initial_state = {
         **result,
         "jd_url": jd_url,
-        "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        "meta": {
+            "thread_id": thread_id,
+            "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        }
     }
     config = {"configurable": {"thread_id": thread_id}}
 
