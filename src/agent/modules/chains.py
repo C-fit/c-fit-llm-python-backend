@@ -12,7 +12,7 @@ from src.agent.modules.states import ProjectAndAchievementsDict, ExperiencesDict
 def set_decomposition_chain(prompt: str, model: str = get_gemini_llm) -> RunnableSerializable:
     return (
         RunnablePassthrough.assign(
-            resume = lambda x: x["resume"]
+            resume_txt = lambda x: x["resume_txt"]
         )
         | prompt
         | model
