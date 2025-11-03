@@ -441,7 +441,7 @@ def get_standard_analysis_prompt() -> str :
 
     # Style
     [
-      {
+      {{
         "id": "role_tech",
         "name": "직무·기술 적합성",
         "weight": 0.30,
@@ -449,8 +449,8 @@ def get_standard_analysis_prompt() -> str :
         "rationale": "",
         "evidence": [],
         "recommendations": []
-      },
-      {
+      }},
+      {{
         "id": "technical_competence",
         "name": "기술 역량",
         "weight": 0.20,
@@ -458,8 +458,8 @@ def get_standard_analysis_prompt() -> str :
         "rationale": "",
         "evidence": [],
         "recommendations": []
-      },
-      {
+      }},
+      {{
         "id": "execution",
         "name": "문제해결·실행력",
         "weight": 0.20,
@@ -467,8 +467,8 @@ def get_standard_analysis_prompt() -> str :
         "rationale": "",
         "evidence": [],
         "recommendations": []
-      },
-      {
+      }},
+      {{
         "id": "ownership",
         "name": "오너십",
         "weight": 0.15,
@@ -476,8 +476,8 @@ def get_standard_analysis_prompt() -> str :
         "rationale": "",
         "evidence": [],
         "recommendations": []
-      },
-      {
+      }},
+      {{
         "id": "collaboration",
         "name": "협업·소통",
         "weight": 0.15,
@@ -485,7 +485,7 @@ def get_standard_analysis_prompt() -> str :
         "rationale": "",
         "evidence": [],
         "recommendations": []
-      }
+      }}
     ]
 
     ### 문체
@@ -563,7 +563,7 @@ def get_deep_dives_prompt() -> str :
        - 크로스팀 협업, 기술적 근거 기반 의견 제시·수렴, 동료 성장 지원
 
     # 각 항목별 출력 형식
-    {
+    {{
       "id": "문자열_영문_소문자",
       "title": "평가 항목 한글 제목 (10자 내외)",
       "score": 0부터 100 사이의 정수,
@@ -571,7 +571,7 @@ def get_deep_dives_prompt() -> str :
       "overview": "해당 영역의 비즈니스 가치와 권장 전략 요약 (100-150자)",
       "detail_md": "마크다운 형식의 상세 분석. 다음 섹션을 포함:\n### 왜 중요한가\n### 현재 상태\n### 권장 전략\n### 기대 효과\n### 리스크 관리",
       "next_steps": ["구체적 실행 단계 1", "구체적 실행 단계 2", "구체적 실행 단계 3"]
-    }
+    }}
     
     # 항목 별 명세
     - **score**: 이력서 내용에 명시된 구체적 사례를 바탕으로 0-100점 부여
