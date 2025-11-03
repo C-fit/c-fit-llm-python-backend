@@ -123,7 +123,7 @@ class OneclickFitWorkflow(BaseWorkflow):
         builder.name = self.name  # Workflow 이름 설정
         return builder
 
-# class OneclickFitWorkflow(BaseWorkflow):
+# class OneclickFitWorkflow(BaseWorkflow): 
 #     """
 #     원클릭 Fit 워크플로우
 #     """
