@@ -354,7 +354,7 @@ class OverallEvaluationNode(BaseNode):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.prompt = prompts.get_fit_analysis_prompt()
+        self.prompt = prompts.get_overall_evaluation_node()
         self.chain = chains.set_total_evaluation_chain(self.prompt)
 
     async def execute(self, state: AgentState) -> dict:
