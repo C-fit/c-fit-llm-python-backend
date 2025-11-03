@@ -596,6 +596,7 @@ def get_deep_dives_prompt() -> str :
         template=template,
         input_variables=[
             "company",
+            "title",
             "company_information",
             "introduction",
             "responsibilities",
@@ -692,14 +693,7 @@ def get_overall_evaluation_node() -> str :
     return PromptTemplate(
         template=template,
         input_variables=[
-            "company",
-            "company_information",
-            "introduction",
-            "responsibilities",
-            "qualification",
-            "preference",
-            "skills",
-            "tech_stacks",
-            "resume_details"
+            "standard_analysis",
+            "deep_dives_analysis"
         ]
     )
