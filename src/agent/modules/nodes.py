@@ -4,6 +4,7 @@
 해당 클래스 모듈은 각각 노드 클래스가 BaseNode를 상속받아 노드 클래스를 구현하는 모듈입니다.
 """
 import json_repair
+import json
 
 from src.agent.utils.base_node import BaseNode
 import src.agent.modules.chains as chains
@@ -52,7 +53,7 @@ class ResumeDecompositionNode(BaseNode):
         prompt_chain = self.chain
         response = await prompt_chain.ainvoke(
             {
-                "resume": state["resume"]
+                "resume_txt": state["resume_txt"]
             }
         )
         result = json_repair.loads(response)
@@ -77,7 +78,7 @@ class ResumeExperiencesNode(BaseNode):
         prompt_chain = self.chain
         response = await prompt_chain.ainvoke(
             {
-                "resume": state["resume"]
+                "resume_txt": state["resume_txt"]
             }
         )
         result = json_repair.loads(response)
@@ -102,7 +103,7 @@ class ResumeProjectsNode(BaseNode):
         prompt_chain = self.chain
         response = await prompt_chain.ainvoke(
             {
-                "resume": state["resume"]
+                "resume_txt": state["resume_txt"]
             }
         )
         result = json_repair.loads(response)
@@ -236,8 +237,8 @@ class EvaluateFitNode(BaseNode):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.prompt = prompts.get_recruit_analysis_prompt()
-        self.chain = chains.set_recruit_evaluation_chain(self.prompt)
+        self.prompt = prompts.get_fit_analysis_prompt()
+        self.chain = chains.set_fit_evaluation_chain(self.prompt)
 
     async def execute(self, state: AgentState) -> dict:
         prompt_chain = self.chain
@@ -260,3 +261,161 @@ class EvaluateFitNode(BaseNode):
         response = await prompt_chain.ainvoke(context)
 
         return{"applicant_recruitment": response}
+    
+
+"""
+Fit 평가 관련 노드
+"""
+
+class StandardAnalysisNode(BaseNode):
+    """이력서와 JD를 토대로 지원자의 역량을 평가하는 노드
+
+    Args:
+        resume_details (TypedDict): 이력서 분해 결과
+
+    Returns:
+        applicant_skills (str): 이력서 평가 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_standard_analysis_prompt()
+        self.chain = chains.set_fit_evaluation_chain(self.prompt)
+
+    async def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        jd_details = state.get("jd_details", {})
+        context = {
+            "company": jd_details.get("company", "정보 없음"),
+            "title": jd_details.get("title", "정보 없음"),
+
+            "company_information": jd_details.get("company_information", ""),
+            "introduction": jd_details.get("introduction", ""),
+            "responsibilities": jd_details.get("responsibilities", []),
+            "qualification": jd_details.get("qualification", []),
+            "preference": jd_details.get("preference", "우대사항 정보 없음"),
+            "skills": jd_details.get("skills", "필요 역량 정보 없음"),
+            "tech_stacks": jd_details.get("tech_stacks", []),
+
+            "resume_details": state.get("resume_details", {})
+        }
+
+        response = await prompt_chain.ainvoke(context)
+        result = json_repair.loads(response)
+
+        return{"standard_analysis": result}
+    
+
+class DeepDivesNode(BaseNode):
+    """이력서와 JD를 토대로 지원자의 역량을 평가하는 노드
+
+    Args:
+        resume_details (TypedDict): 이력서 분해 결과
+
+    Returns:
+        applicant_skills (str): 이력서 평가 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_deep_dives_prompt()
+        self.chain = chains.set_fit_evaluation_chain(self.prompt)
+
+    async def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        jd_details = state.get("jd_details", {})
+        context = {
+            "company": jd_details.get("company", "정보 없음"),
+            "title": jd_details.get("title", "정보 없음"),
+
+            "company_information": jd_details.get("company_information", ""),
+            "introduction": jd_details.get("introduction", ""),
+            "responsibilities": jd_details.get("responsibilities", []),
+            "qualification": jd_details.get("qualification", []),
+            "preference": jd_details.get("preference", "우대사항 정보 없음"),
+            "skills": jd_details.get("skills", "필요 역량 정보 없음"),
+            "tech_stacks": jd_details.get("tech_stacks", []),
+
+            "resume_details": state.get("resume_details", {})
+        }
+
+        response = await prompt_chain.ainvoke(context)
+        result = json_repair.loads(response)
+
+        return{"deep_dives_analysis": result}
+    
+
+class OverallEvaluationNode(BaseNode):
+    """이력서와 JD를 토대로 지원자의 역량을 평가하는 노드
+
+    Args:
+        resume_details (TypedDict): 이력서 분해 결과
+
+    Returns:
+        applicant_skills (str): 이력서 평가 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompts.get_fit_analysis_prompt()
+        self.chain = chains.set_fit_evaluation_chain(self.prompt)
+
+    async def execute(self, state: AgentState) -> dict:
+        prompt_chain = self.chain
+        jd_details = state.get("jd_details", {})
+        context = {
+            "standard_analysis": jd_details.get("standard_analysis"),
+            "deep_dives_analysis": jd_details.get("deep_dives_analysis")
+        }
+
+        response = await prompt_chain.ainvoke(context)
+        result = json_repair.loads(response)
+
+        return{"overall_analysis": result}
+    
+
+class IntegrateContextNode(BaseNode):
+    """이력서와 JD를 토대로 지원자의 역량을 평가하는 노드
+
+    Args:
+        resume_details (TypedDict): 이력서 분해 결과
+
+    Returns:
+        applicant_skills (str): 이력서 평가 결과
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    async def execute(self, state: AgentState) -> dict:
+        """
+        State에서 출력 필드만 추출하여 JSON 형태로 반환
+        """
+        jd_details = state.get("jd_details", {})
+        job_family = jd_details.get("title")
+
+        output_data = {
+            # 출력 필드
+            "version": state.get("version", "fit.v1.1"),
+            "locale": state.get("locale", "ko-KR"),
+            "job_family": job_family,
+            "meta": state.get("meta"),
+            
+            # Job 메타
+            "job": state.get("job"),
+            
+            # 이력서 메타
+            "resume": state.get("resume"),
+            
+            # 평가 내역
+            "axes": state.get("standard_analysis"),
+            "deep_dives": state.get("deep_dives_analysis"),
+        }
+
+        # overall_analysis는 이미 json이므로 밸류만 펼침
+        overall = state.get("overall_analysis") or {}
+        if isinstance(overall, str):
+            overall = json.loads(overall)
+        
+        output_data.update(overall)
+        
+        # JSON 문자열로 변환
+        output_json = json.dumps(output_data, ensure_ascii=False, indent=2)
+        
+        return {"report": output_json}

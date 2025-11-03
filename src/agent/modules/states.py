@@ -29,7 +29,7 @@ class ExperiencesDict(TypedDict):
     company: str            # 재직 회사
     period: int              # 근속 년수
     role: str               # 담당 직무
-    projects: List[ProjectAndAchievementsDict]    #진행한 업무
+    projects: List[ProjectAndAchievementsDict]    #진행한 업무    
 
 
 """
@@ -65,13 +65,30 @@ class JobDescriptionDict(TypedDict):
 """
 Agent State
 """
+class APIInfo(TypedDict):
+    version: str = "fit.v1.1"
+    locale: str = "ko-KR"
+
+class RequestMeta(TypedDict):
+    thread_id: str
+    model: str = "cf-oneclick"
+    generatedAt: str
+
+class ResumeMeta(TypedDict):
+    filename: str           # 이력서 파일 이름
+    pages: int              # 이력서 페이지 수
+
+class JobMeta(TypedDict):
+    title: str
+    company: str
+
 class AgentState(TypedDict):
     # 이력서 파일 & JD URL
     resume_file: str
     jd_url: str
 
     # 이력서 & JD 원본 text
-    resume: str
+    resume_txt: str
     job_description: str
 
     # 분해된 이력서 & JD
@@ -81,3 +98,21 @@ class AgentState(TypedDict):
     # 지원자 평가 관련 항목
     applicant_skills: str
     applicant_recruitment: str
+
+
+    # 출력 필드
+    version: str = "fit.v1.1"
+    locale: str = "ko-KR"
+    job_family: str
+    meta: RequestMeta
+
+    # Job 메타
+    job: JobMeta
+
+    # 이력서 메타
+    resume: ResumeMeta
+
+    # 평가 내역
+    standard_analysis: str
+    deep_dives_analysis: str
+    overall_analysis: str

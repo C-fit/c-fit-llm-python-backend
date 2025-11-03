@@ -14,7 +14,7 @@ def get_resume_prompt() -> str :
     """이력서를 토대로 직무 카테고리 등 키워드를 추출하는 프롬프트
 
     Args:
-        resume (str): 이력서 전체 string
+        resume_txt (str): 이력서 전체 string
     
     Returns:
         이력서 추출 프롬프트 (PromptTemplate)
@@ -24,7 +24,7 @@ def get_resume_prompt() -> str :
     이력서는 <Resume>를 참고하고, 추출한 키워드는 <Style>의 양식에 맞게 작성하라.
 
     # Resume
-    {resume}
+    {resume_txt}
 
     # Style
     - position: 직무 유형(AI 엔지니어, ML 엔지니어, DevOps 엔지니어, ML 리서처, Backend 엔지니어 등)
@@ -40,7 +40,7 @@ def get_resume_prompt() -> str :
 
     return PromptTemplate(
         template=template,
-        input_variables=["resume"]
+        input_variables=["resume_txt"]
     )
 
 
@@ -48,7 +48,7 @@ def get_projects_prompt() -> str:
     """이력서에 기재된 프로젝트 내역을 추출하는 프롬프트
     
     Args:
-        resume (str): 이력서 전체 string
+        resume_txt (str): 이력서 전체 string
     
     Returns:
         이력서 프로젝트 프롬프트 (PromptTemplate)
@@ -59,7 +59,7 @@ def get_projects_prompt() -> str:
     이 때, 사이드 프로젝트 뿐만 아니라 회사에서 진행한 프로젝트까지 모두 추출하라.
 
     # Resume
-    {resume}
+    {resume_txt}
 
     # Style
     - title(str): 진행한 프로젝트 이름
@@ -74,7 +74,7 @@ def get_projects_prompt() -> str:
 
     return PromptTemplate(
         template=template,
-        input_variables=["resume"]
+        input_variables=["resume_txt"]
     )
 
 
@@ -92,7 +92,7 @@ def get_experiences_prompt() -> str:
     이력서는 <Resume>를 참고하고, <Style>의 지침대로 추출하라.
 
     # Resume
-    {resume}
+    {resume_txt}
 
     # Style
     - company(str): 재직한 회사의 이름(회사 설명이 아닌 이름만 추출할 것. Markdown format을 고려하여 추정되는 고유명사를 추출할 것.)
@@ -104,7 +104,7 @@ def get_experiences_prompt() -> str:
 
     return PromptTemplate(
         template=template,
-        input_variables=["resume"]
+        input_variables=["resume_txt"]
     )
 
 
@@ -232,7 +232,7 @@ def get_skills_analysis_prompt() -> str :
     )
 
 
-def get_recruit_analysis_prompt() -> str :
+def get_fit_analysis_prompt() -> str :
     """
     이력서와 JD를 비교 분석하는 프롬프트
 
@@ -334,6 +334,359 @@ def get_recruit_analysis_prompt() -> str :
     보고서에 어울리는 격식 있는 문체로 작성하라.
 
     모든 사고 과정에서 '우리 회사에 어울리는 인재인지'를 최우선으로 판단하라.
+    """
+
+    return PromptTemplate(
+        template=template,
+        input_variables=[
+            "company",
+            "company_information",
+            "introduction",
+            "responsibilities",
+            "qualification",
+            "preference",
+            "skills",
+            "tech_stacks",
+            "resume_details"
+        ]
+    )
+
+
+"""
+Step 3-2. 리포트 관련 프롬프트
+"""
+
+def get_standard_analysis_prompt() -> str :
+    """
+    이력서와 JD를 5개 기준으로 비교 분석하는 노드
+
+    Args
+        - 이력서
+        - JD
+    """
+
+    template = """# Role
+    너는 {company}에 접수된 이력서를 평가하는 AI이다.
+    주어진 이력서를 <Standards>의 다섯가지 평가 기준에 맞춰 평가하고, JSON format으로 보고서를 작성하라.
+
+    # Company Description
+    {company_information}
+
+    # Job Description
+    ### 직무 명
+    {title}
+    ### 직무 요약
+    {introduction}
+    ### 업무
+    {responsibilities}
+    ### 자격요건
+    {qualification}
+    ### 이런 사람일수록 좋다
+    {preference}
+    ### 직무 수행에 필요한 역량
+    {skills}
+    ### 우리 회사의 기술 스택
+    {tech_stacks}
+
+    # Resume
+    {resume_details}
+
+    # Standards
+    ## 1. 직무 및 기술 적합성 (Role & Technical Alignment)
+
+    | 평가 항목 | 배점 |
+    |---|---:|
+    | 회사의 비즈니스 도메인의 특성과 생태계 이해도 | 25점 |
+    | 핵심 기술 스택 실무 경험 및 숙련도 | 25점 |
+    | 유사한 제품 개발 경험 (아이템, 고객층, 규모, 복잡도) | 35점 |
+    | 개인 역량의 출중함 | 15점 |
+    | **소계** | **100점** |
+
+    ## 2. 기술 역량 (Technical Competence)
+
+    | 평가 항목 | 배점 |
+    |---|---:|
+    | 비즈니스 요구사항 이해 및 적절한 기술 스택/아키텍처 설계 구현 경험 | 25점 |
+    | 확장성과 안정성을 고려한 시스템 아키텍처 설계 및 구축 경험 | 30점 |
+    | 클린 코드, 테스트 코드 등 코드 품질 및 유지보수성 이해와 적용 사례 | 20점 |
+    | 설계부터 운영까지 제품의 End-to-End 생명 주기 경험 및 개선 이력 | 25점 |
+    | **소계** | **100점** |
+
+    ## 3. 문제 해결 및 실행력 (Problem-Solving & Execution)
+
+    | 평가 항목 | 배점 |
+    |---|---:|
+    | 핵심 원인 파악 및 측정 가능한 구체적 지표(Metric)로 정의하는 능력 | 30점 |
+    | 논리적 가설 수립 및 작은 단위로 빠른 실행/검증 사이클 반복 경험 | 35점 |
+    | 기술적 난제/복잡한 버그 해결을 통한 비즈니스 성과 기여 사례 | 35점 |
+    | **소계** | **100점** |
+
+    ## 4. 오너십 (Ownership)
+
+    | 평가 항목 | 배점 |
+    |---|---:|
+    | 스스로 문제 발견 및 개선 방안 제안, 프로젝트 주도 경험 | 40점 |
+    | 담당 기능의 품질/마일스톤에 대한 높은 책임감 및 이슈 해결 끈기 | 30점 |
+    | 팀 목표 달성을 위해 명시된 역할 이상의 기여를 하려는 태도 및 사례 | 30점 |
+    | **소계** | **100점** |
+
+    ## 5. 협업 및 소통 (Collaboration & Communication)
+
+    | 평가 항목 | 배점 |
+    |---|---:|
+    | 기획, 디자인 등 다른 직군과 원활한 소통 및 복잡한 요구사항 조율 경험 | 40점 |
+    | 명확한 근거 기반 의견 제시 및 타인 의견 경청으로 더 나은 결론 도출 능력 | 30점 |
+    | 코드 리뷰 참여, 지식 공유, 기술 문서 작성 등 동료 성장 지원 이력 | 30점 |
+    | **소계** | **100점** |
+
+    # Style
+    [
+      {
+        "id": "role_tech",
+        "name": "직무·기술 적합성",
+        "weight": 0.30,
+        "score": 0,
+        "rationale": "",
+        "evidence": [],
+        "recommendations": []
+      },
+      {
+        "id": "technical_competence",
+        "name": "기술 역량",
+        "weight": 0.20,
+        "score": 0,
+        "rationale": "",
+        "evidence": [],
+        "recommendations": []
+      },
+      {
+        "id": "execution",
+        "name": "문제해결·실행력",
+        "weight": 0.20,
+        "score": 0,
+        "rationale": "",
+        "evidence": [],
+        "recommendations": []
+      },
+      {
+        "id": "ownership",
+        "name": "오너십",
+        "weight": 0.15,
+        "score": 0,
+        "rationale": "",
+        "evidence": [],
+        "recommendations": []
+      },
+      {
+        "id": "collaboration",
+        "name": "협업·소통",
+        "weight": 0.15,
+        "score": 0,
+        "rationale": "",
+        "evidence": [],
+        "recommendations": []
+      }
+    ]
+
+    ### 문체
+    보고서에 어울리는 격식 있는 문체로 작성하라.
+    모든 사고 과정에서 '우리 회사에 어울리는 인재인지'를 최우선으로 판단하라.
+    Output must be a valid JSON object only.
+    """
+
+    return PromptTemplate(
+        template=template,
+        input_variables=[
+            "company",
+            "company_information",
+            "introduction",
+            "responsibilities",
+            "qualification",
+            "preference",
+            "skills",
+            "tech_stacks",
+            "resume_details"
+        ]
+    )
+
+
+def get_deep_dives_prompt() -> str :
+    """
+    이력서와 JD를 5개 기준으로 비교 분석하는 노드
+
+    Args
+        - 이력서
+        - JD
+    """
+
+    template = """# Role
+    너는 {company}에 접수된 이력서를 평가하는 AI이다.
+    주어진 이력서를 <Standards>의 다섯가지 평가 기준에 맞춰 평가/요약하고, JSON format으로 보고서를 작성하라.
+
+    # Company Description
+    {company_information}
+
+    # Job Description
+    ### 직무 명
+    {title}
+    ### 직무 요약
+    {introduction}
+    ### 업무
+    {responsibilities}
+    ### 자격요건
+    {qualification}
+    ### 이런 사람일수록 좋다
+    {preference}
+    ### 직무 수행에 필요한 역량
+    {skills}
+    ### 우리 회사의 기술 스택
+    {tech_stacks}
+
+    # Resume
+    {resume_details}
+
+    # Standards
+
+    1. **직무·기술 적합성** (id: "role_tech")
+       - 비즈니스 도메인 이해도, 핵심 기술 스택 경험, 유사 제품 개발 경험, 개인 역량
+
+    2. **기술 역량** (id: "technical_competence")
+       - 비즈니스 요구사항 기반 설계·아키텍처, 확장성·안정성, 코드 품질·유지보수성, End-to-End 생명주기 경험
+
+    3. **문제해결·실행력** (id: "execution")
+       - 핵심 원인 파악·지표 정의, 가설-검증 사이클, 기술적 난제 해결로 인한 비즈니스 기여
+
+    4. **오너십** (id: "ownership")
+       - 자발적 문제 발견·개선 주도, 책임감·이슈 대응, 역할 이상의 기여
+
+    5. **협업·소통** (id: "collaboration")
+       - 크로스팀 협업, 기술적 근거 기반 의견 제시·수렴, 동료 성장 지원
+
+    # 각 항목별 출력 형식
+    {
+      "id": "문자열_영문_소문자",
+      "title": "평가 항목 한글 제목 (10자 내외)",
+      "score": 0부터 100 사이의 정수,
+      "basis": "점수 도출 근거 (50-80자, 이력서 구체적 사례 기반)",
+      "overview": "해당 영역의 비즈니스 가치와 권장 전략 요약 (100-150자)",
+      "detail_md": "마크다운 형식의 상세 분석. 다음 섹션을 포함:\n### 왜 중요한가\n### 현재 상태\n### 권장 전략\n### 기대 효과\n### 리스크 관리",
+      "next_steps": ["구체적 실행 단계 1", "구체적 실행 단계 2", "구체적 실행 단계 3"]
+    }
+    
+    # 항목 별 명세
+    - **score**: 이력서 내용에 명시된 구체적 사례를 바탕으로 0-100점 부여
+    - **basis**: 이력서에서 추출한 키워드·프로젝트명·성과 지표 포함 (예: "RAG 4개월·LLM Agent·LangGraph 경험")
+    - **overview**: 해당 영역이 왜 중요하고, 어떤 전략으로 강화할 수 있는지 짧게 요약
+    - **detail_md**: 이력서의 강점·약점을 구체적으로 분석하고, 마크다운으로 상세 전략 기술
+    - **next_steps**: 3-5개의 우선순위별 실행 항목 (명사형 또는 명령문)
+
+    # 특별 지시
+    - 과장하거나 부정적으로 표현하지 말 것. 객관적이고 건설적으로 작성
+    - detail_md는 마크다운 헤더(###), 불릿 리스트, 테이블 등을 활용하여 가독성 높게 구성
+    - next_steps는 실행 가능하고 우선순위가 명확한 항목으로 구성
+    - 이력서에 없는 내용은 "경험 부족" 또는 "강화 필요"로 표현
+
+    # 문체
+    보고서에 어울리는 격식 있는 문체로 작성하라.
+    모든 사고 과정에서 '우리 회사에 어울리는 인재인지'를 최우선으로 판단하라.
+    Output must be a valid JSON object only.
+    """
+
+    return PromptTemplate(
+        template=template,
+        input_variables=[
+            "company",
+            "company_information",
+            "introduction",
+            "responsibilities",
+            "qualification",
+            "preference",
+            "skills",
+            "tech_stacks",
+            "resume_details"
+        ]
+    )
+
+
+def get_overall_evaluation_node() -> str :
+    """
+    레포트의 종합 소견을 도출하는 노드
+
+    Args
+        - 이력서
+        - JD
+    """
+
+    template = """당신은 직무 채용 전문가입니다. 다음 이력서 분석 결과를 받아 구조화된 JSON 형식의 총평을 작성하세요.
+
+    ## 이력서 분석 결과 1
+    {standard_analysis}
+
+    ## 이력서 분석 결과 2
+    {deep_dives_analysis}
+
+    ## 출력: JSON 형식의 총평
+    다음 구조로 정확히 응답하세요 (한국어):
+    ```
+    {
+      "summary_short": "직무 적합도와 보강 포인트를 1-2문장으로 요약. 형식: '핵심 기술 강점 및 역량은 충분하며 강점을 명시. 다만 [구체적 약점]이 보강 포인트입니다. [소요기간] 집중 과제로 보완 시 [예상 결과].'",
+    
+      "summary_long": "## 섹션별 상세 평가\n- **직무/기술**: 기술스택, 경험 수준, 핵심 역량 평가\n- **오너십/협업**: 주도성, 팀 문화 적응도, 커뮤니케이션\n- **실행력**: 품질, 속도, 납기 관리 능력\n- **도메인 핏**: 직무 특정 도메인 경험 및 갭\n\n## 보강 로드맵\n우선순위별 학습/PoC 항목 (기간 명시)\n\n## 결론\n최종 판단 및 투입 시점 전망",
+    
+      "overall": {
+        "score": "[0-100 숫자, 상세 근거에 따라 산출]",
+        "grade": "[A | B | C | D 중 하나, score 범위: A=80+, B=65-79, C=50-64, D=<50]",
+        "verdict": "[진행 권장 | 보완 후 진행 권장 | 보완 후 검토 | 부적합 중 하나]"
+      },
+    
+      "recommendations": [
+        {
+          "priority": "[P1 | P2 | P3]",
+          "action": "[구체적 액션 문장, 예: 'GraphQL 쿼리 최적화 스터디 + mini project']",
+          "impact": "[높음 | 중간 | 낮음]"
+        }
+        // P1 최소 1-2개, P2 1-2개, P3는 선택
+      ],
+    
+      "confidence": {
+        "level": "[0.0-1.0 범위 숫자]",
+        "notes": "[판단 신뢰도 근거 및 불확실성 요소 자유 기술]"
+      }
+    }
+    ```
+
+    ## 작성 규칙
+
+    ### summary_short
+    - 한 문장 구조: "X 역량은 충분하며 Y가 강점입니다. 다만 Z가 보강 포인트입니다. [기간] 과제로 보완 시 [결과]."
+    - 구체적 기술/도메인 언급 필수
+    - 보강 기간과 예상 효과 명시
+
+    ### summary_long
+    - 마크다운 섹션 구조 필수
+    - 각 섹션 2-3줄로 간결하게
+    - 직무 요구사항 중심으로 강점/약점 평가
+    - 보강 로드맵은 구체적 학습 주제 + 기간 명시
+    - 결론은 투입 적합성 최종 판단
+
+    ### overall
+    - **score**: 다음 기준으로 산출
+      - 기술 적합도 40%
+      - 도메인 경험 30%
+      - 협업/오너십 20%
+      - 실행력 10%
+    - **grade**: score 자동 결정 (오버라이드 불가)
+    - **verdict**: score와 보강 필요성에 따라 선택
+
+    ### recommendations
+    - **P1**: 직무 투입 전 필수 과제 (1-2주 내)
+    - **P2**: 3-4주 내 권장 보강
+    - **P3**: 장기 성장 과제
+    - impact는 업무 임팩트 중심 (학습곡선 아님)
+
+    ### confidence
+    - **level**: 분석 근거의 명확성에 따라 0.5-0.95 범위
+    - **notes**: 데이터 부족 영역, 불확실한 판단 이유 기술
     """
 
     return PromptTemplate(

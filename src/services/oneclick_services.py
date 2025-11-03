@@ -1,5 +1,6 @@
 from fastapi import UploadFile, HTTPException
 import httpx
+from datetime import datetime, timezone
 
 import src.agent.workflow as wk
 from src.agent.modules.states import AgentState
@@ -88,7 +89,12 @@ async def oneclick_fit(checkpointer: any, thread_id: str, resume_file: UploadFil
     graph = wk.OneclickFitWorkflow(AgentState).build()
     work = graph.compile(checkpointer=checkpointer)
 
-    initial_state = {**result, "jd_url": jd_url}
+    # generatedAt 추가
+    initial_state = {
+        **result,
+        "jd_url": jd_url,
+        "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
     config = {"configurable": {"thread_id": thread_id}}
 
     await work.ainvoke(initial_state, config=config)
